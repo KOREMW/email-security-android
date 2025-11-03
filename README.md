@@ -63,4 +63,54 @@ AI 기반 모바일 이메일 보안 앱으로, 실시간 악성 URL 및 QR코�
 ---
 
 ## 📁 프로젝트 구조
+email-security-android/
+├── mobile/
+│ ├── app/
+│ │ ├── src/
+│ │ │ ├── main/
+│ │ │ │ ├── kotlin/
+│ │ │ │ │ └── com/example/emailsecurity/
+│ │ │ │ │ ├── MainActivity.kt
+│ │ │ │ │ ├── ui/
+│ │ │ │ │ ├── viewmodel/
+│ │ │ │ │ └── data/
+│ │ │ │ └── res/
+│ │ │ └── test/
+│ │ └── build.gradle.kts
+│ └── settings.gradle.kts
+│
+├── backend/
+│ ├── functions/
+│ │ ├── index.js
+│ │ └── package.json
+│ ├── .firebaserc
+│ └── firebase.json
+│
+├── ml/
+│ ├── model_training.py
+│ ├── model_conversion.py
+│ ├── requirements.txt
+│ └── model.tflite
+│
+├── docs/
+│ ├── architecture.md
+│ ├── api.md
+│ └── roadmap.md
+│
+├── .gitignore
+├── LICENSE
+└── README.md
+
+---
+
+## 🚀 로컬 실행 방법
+
+### 사전 요구사항
+- Android Studio (최신 버전)
+- Python 3.9+
+- Node.js 14+
+- Firebase 프로젝트 생성
+- GitHub 저장소 클론
+
+### Android 앱 실행
 
