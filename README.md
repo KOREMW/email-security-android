@@ -63,7 +63,7 @@ AI 기반 모바일 이메일 보안 앱으로, 실시간 악성 URL 및 QR코�
 ---
 
 ## 📁 프로젝트 구조
-email-security-android/
+```email-security-android/
 ├── mobile/
 │   ├── app/
 │   │   ├── src/
@@ -108,7 +108,7 @@ email-security-android/
 ├── LICENSE
 ├── README.md
 └── CONTRIBUTING.md (선택사항)
-
+```
 ---
 
 ## 🚀 로컬 실행 방법
