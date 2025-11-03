@@ -65,41 +65,49 @@ AI 기반 모바일 이메일 보안 앱으로, 실시간 악성 URL 및 QR코�
 ## 📁 프로젝트 구조
 email-security-android/
 ├── mobile/
-│ ├── app/
-│ │ ├── src/
-│ │ │ ├── main/
-│ │ │ │ ├── kotlin/
-│ │ │ │ │ └── com/example/emailsecurity/
-│ │ │ │ │ ├── MainActivity.kt
-│ │ │ │ │ ├── ui/
-│ │ │ │ │ ├── viewmodel/
-│ │ │ │ │ └── data/
-│ │ │ │ └── res/
-│ │ │ └── test/
-│ │ └── build.gradle.kts
-│ └── settings.gradle.kts
+│   ├── app/
+│   │   ├── src/
+│   │   │   ├── main/
+│   │   │   │   ├── kotlin/com/example/emailsecurity/
+│   │   │   │   │   ├── MainActivity.kt
+│   │   │   │   │   ├── ui/
+│   │   │   │   │   ├── viewmodel/
+│   │   │   │   │   └── data/
+│   │   │   │   └── res/
+│   │   │   └── test/
+│   │   ├── build.gradle.kts
+│   │   └── proguard-rules.pro
+│   ├── settings.gradle.kts
+│   └── local.properties
 │
 ├── backend/
-│ ├── functions/
-│ │ ├── index.js
-│ │ └── package.json
-│ ├── .firebaserc
-│ └── firebase.json
+│   ├── functions/
+│   │   ├── index.js
+│   │   └── package.json
+│   ├── .firebaserc
+│   ├── firebase.json
+│   └── .env (커밋 금지)
 │
 ├── ml/
-│ ├── model_training.py
-│ ├── model_conversion.py
-│ ├── requirements.txt
-│ └── model.tflite
+│   ├── model_training.py
+│   ├── model_conversion.py
+│   ├── tflite_test.py
+│   ├── requirements.txt
+│   └── model.tflite
 │
 ├── docs/
-│ ├── architecture.md
-│ ├── api.md
-│ └── roadmap.md
+│   ├── architecture.md
+│   ├── api.md
+│   └── roadmap.md
+│
+├── .github/
+│   └── workflows/
+│       └── ci.yml (선택사항)
 │
 ├── .gitignore
 ├── LICENSE
-└── README.md
+├── README.md
+└── CONTRIBUTING.md (선택사항)
 
 ---
 
