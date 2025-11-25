@@ -19,9 +19,9 @@ AI 기반 모바일 이메일 보안 앱으로, 실시간 악성 URL 및 QR코�
 
 | 이름 | 역할 | 담당 영역 |
 |------|------|----------|
-| 엄민욱 | Backend 개발 | Firebase Cloud Functions, API 통합 |
-| 이가연 | Frontend 개발 | Android UI/UX, Jetpack Compose |
-| 모정원 | ML 개발 | TensorFlow Lite, 모델 학습 및 최적화 |
+| 엄민욱 |통합 | BackEnd: Firebase Cloud Functions, API 통합 |
+| 이가연 | 통합 |FrontEnd:  Android UI/UX, Jetpack Compose |
+| 모정원 | 통합 | ML: TensorFlow Lite, 모델 학습 및 최적화 |
 
 ---
 
