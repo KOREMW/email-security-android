@@ -1,9 +1,9 @@
-package com.example.myapplication
+package com.example.phishing
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import com.example.myapplication.ml.UrlClassifier
+import com.example.phishing.ml.UrlClassifier
 import android.widget.EditText
 import android.widget.Button
 import android.widget.TextView
