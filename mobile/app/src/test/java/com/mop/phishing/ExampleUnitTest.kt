@@ -1,4 +1,4 @@
-package com.example.phishing
+package com.mop.phishing
 
 import org.junit.Test
 

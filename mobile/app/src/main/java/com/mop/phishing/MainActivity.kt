@@ -1,9 +1,9 @@
-package com.example.phishing
+package com.mop.phishing
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import com.example.phishing.ml.UrlClassifier
+import com.mop.phishing.ml.UrlClassifier
 import android.widget.EditText
 import android.widget.Button
 import android.widget.TextView

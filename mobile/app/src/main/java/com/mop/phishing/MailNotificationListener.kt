@@ -1,10 +1,10 @@
-package com.example.phishing  // 네 패키지로 변경
+package com.mop.phishing  // 네 패키지로 변경
 
 import android.app.Notification
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import android.util.Log
-import com.example.phishing.ml.UrlClassifier
+import com.mop.phishing.ml.UrlClassifier
 
 class MailNotificationListener : NotificationListenerService() {
 

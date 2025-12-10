@@ -5,13 +5,13 @@ plugins {
 
 android {
 
-    namespace = "com.example.myapplication"
+    namespace = "com.mop.phishing"
     compileSdk {
         version = release(36)
     }
 
     defaultConfig {
-        applicationId = "com.example.myapplication"
+        applicationId = "com.mop.phishing"
         minSdk = 24
         targetSdk = 36
         versionCode = 1

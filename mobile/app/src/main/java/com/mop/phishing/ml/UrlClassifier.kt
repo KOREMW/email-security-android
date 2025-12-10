@@ -1,4 +1,4 @@
-package com.example.phishing.ml
+package com.mop.phishing.ml
 
 import android.content.Context
 import org.tensorflow.lite.Interpreter

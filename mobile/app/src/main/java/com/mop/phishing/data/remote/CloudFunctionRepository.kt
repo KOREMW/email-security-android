@@ -1,4 +1,4 @@
-package com.example.phishing.data.remote
+package com.mop.phishing.data.remote
 
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
