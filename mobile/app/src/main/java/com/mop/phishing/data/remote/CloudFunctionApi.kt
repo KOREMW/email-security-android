@@ -1,4 +1,4 @@
-package com.example.myapplication.data.remote
+package com.example.phishing.data.remote
 
 import retrofit2.http.Body
 import retrofit2.http.GET

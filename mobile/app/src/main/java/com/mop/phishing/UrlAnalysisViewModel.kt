@@ -1,12 +1,12 @@
-package com.example.myapplication
+package com.example.phishing
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
-import com.example.myapplication.data.remote.CloudFunctionRepository
-import com.example.myapplication.data.remote.AnalyzeSuspiciousUrlResponse
+import com.example.phishing.data.remote.CloudFunctionRepository
+import com.example.phishing.data.remote.AnalyzeSuspiciousUrlResponse
 import android.util.Log
 
 class UrlAnalysisViewModel : ViewModel() {

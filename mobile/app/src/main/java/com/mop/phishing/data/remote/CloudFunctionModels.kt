@@ -1,4 +1,4 @@
-package com.example.myapplication.data.remote
+package com.example.phishing.data.remote
 
 import com.google.gson.annotations.SerializedName
 
