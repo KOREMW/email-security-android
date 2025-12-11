@@ -1,0 +1,7 @@
+url,label
+https://www.google.com,0
+http://192.168.0.10/login.php,1
+https://secure-login.example-bank.com/account/update?user=abc123,1
+https://news.naver.com/main/home.nhn,0
+http://verify-account-security.com/update,1
+https://github.com/minwo123,0

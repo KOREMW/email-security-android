@@ -1,0 +1,59 @@
+# Android
+.gradle/
+build/
+*.apk
+*.aar
+*.jks
+*.keystore
+local.properties
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.swp
+*.swo
+*~
+
+# Firebase
+.firebase/
+firebase-debug.log
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+ml-env/
+venv/
+*.egg-info/
+dist/
+build/
+
+# Environment Variables
+.env
+.env.local
+firebase-config.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary Files
+*.tmp
+*.temp
+*.log
+
+# Node Modules
+node_modules/
+npm-debug.log
+
+# TensorFlow
+*.pb
+*.ckpt
+
+# Model Files (크기가 크면 제외)
+*.tflite
+*.h5
