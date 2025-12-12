@@ -1,7 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
+    
+    <!-- 인터넷 권한 -->
     <uses-permission android:name="android.permission.INTERNET" />
+    
+    <!-- 카메라 권한 (QR 스캐너용) -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
+    
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -13,21 +21,24 @@
         android:networkSecurityConfig="@xml/network_security_config"
         android:supportsRtl="true"
         android:theme="@style/Theme.MyApplication">
+        
+        <!-- 알림 리스너 서비스 -->
         <service
             android:name=".MailNotificationListener"
             android:enabled="true"
             android:exported="true"
             android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
-
             <intent-filter>
                 <action android:name="android.service.notification.NotificationListenerService" />
             </intent-filter>
         </service>
 
+        <!-- XML 레이아웃 기반 Activity (테스트용) -->
         <activity
             android:name=".MainActivity"
             android:exported="false" />
 
+        <!-- Compose 기반 메인 Activity -->
         <activity
             android:name=".MainActivityCompose"
             android:exported="true"
