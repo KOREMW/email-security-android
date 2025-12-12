@@ -110,13 +110,25 @@ fun AppNavigation(
                     if (analysisState is AnalysisState.Completed) {
                         val result = (analysisState as AnalysisState.Completed).result
                         notifications = notifications.map { n ->
-                            if (n.id == notification.id) n.copy(isAnalyzed = true, riskLevel = result.riskLevel, riskScore = result.riskScore) else n
+                            if (n.id == notification.id) n.copy(
+                                isAnalyzed = true,
+                                riskLevel = result.riskLevel,
+                                riskScore = result.riskScore
+                            ) else n
                         }
                     }
                 }
 
                 val displayState = if (notification.isAnalyzed && analysisState is AnalysisState.Loading) {
-                    AnalysisState.Completed(AnalysisResult(notification.riskLevel, notification.riskScore, getRecommendationForLevel(notification.riskLevel), notification.riskLevel == RiskLevel.SAFE, null))
+                    AnalysisState.Completed(
+                        AnalysisResult(
+                            riskLevel = notification.riskLevel,
+                            riskScore = notification.riskScore,
+                            recommendation = getRecommendationForLevel(notification.riskLevel),
+                            canAccess = notification.riskLevel == RiskLevel.SAFE,
+                            details = null
+                        )
+                    )
                 } else analysisState
 
                 AnalysisDetailScreen(
@@ -125,8 +137,11 @@ fun AppNavigation(
                     analysisSteps = analysisSteps,
                     onBackClick = { navController.popBackStack() },
                     onShareClick = {
-                        if (displayState is AnalysisState.Completed) UrlActionUtils.shareAnalysisResult(context, notification.url, displayState.result)
-                        else UrlActionUtils.shareUrl(context, notification.url)
+                        if (displayState is AnalysisState.Completed) {
+                            UrlActionUtils.shareAnalysisResult(context, notification.url, displayState.result)
+                        } else {
+                            UrlActionUtils.shareUrl(context, notification.url)
+                        }
                     },
                     onBlockClick = {
                         if (UrlBlockManager.isBlocked(context, notification.url)) {
@@ -147,7 +162,10 @@ fun AppNavigation(
             UrlInputScreen(
                 analysisState = if (analysisState is AnalysisState.Loading && !isLoading) null else analysisState,
                 isLoading = isLoading,
-                onBackClick = { analysisViewModel.resetAnalysis(); navController.popBackStack() },
+                onBackClick = {
+                    analysisViewModel.resetAnalysis()
+                    navController.popBackStack()
+                },
                 onAnalyzeClick = { url -> analysisViewModel.analyzeUrl(url, "manual", true) },
                 onQrScanClick = { navController.navigate(Screen.QrScanner.route) }
             )
@@ -176,8 +194,13 @@ fun AppNavigation(
                 onPrivacyClick = {},
                 onOpenSourceClick = {},
                 onResetOnboardingClick = {
-                    context.getSharedPreferences("app_prefs", android.content.Context.MODE_PRIVATE).edit().putBoolean("onboarding_completed", false).apply()
-                    navController.navigate(Screen.Onboarding.route) { popUpTo(0) { inclusive = true } }
+                    context.getSharedPreferences("app_prefs", android.content.Context.MODE_PRIVATE)
+                        .edit()
+                        .putBoolean("onboarding_completed", false)
+                        .apply()
+                    navController.navigate(Screen.Onboarding.route) {
+                        popUpTo(0) { inclusive = true }
+                    }
                 },
                 onLogoutClick = {}
             )
@@ -195,49 +218,117 @@ fun NotificationListScreenWithFab(
     onQrScanClick: () -> Unit
 ) {
     var showFabMenu by remember { mutableStateOf(false) }
+    
     Scaffold(
         floatingActionButton = {
-            ExpandableFab(showFabMenu, { showFabMenu = it }, { showFabMenu = false; onUrlInputClick() }, { showFabMenu = false; onQrScanClick() })
+            ExpandableFab(
+                expanded = showFabMenu,
+                onExpandedChange = { showFabMenu = it },
+                onUrlInputClick = {
+                    showFabMenu = false
+                    onUrlInputClick()
+                },
+                onQrScanClick = {
+                    showFabMenu = false
+                    onQrScanClick()
+                }
+            )
         }
     ) { paddingValues ->
         LazyColumn(
-            modifier = Modifier.fillMaxSize().padding(paddingValues),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             item { NotificationListTopBar(onSettingsClick) }
             item {
                 Column {
-                    Text("알림 목록", style = MaterialTheme.typography.headlineMedium, color = MaterialTheme.colorScheme.onBackground)
+                    Text(
+                        text = "알림 목록",
+                        style = MaterialTheme.typography.headlineMedium,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
                     if (unanalyzedCount > 0) {
                         Spacer(Modifier.height(4.dp))
-                        Text("${unanalyzedCount}개의 미분석 알림", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(
+                            text = "${unanalyzedCount}개의 미분석 알림",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
                     Spacer(Modifier.height(16.dp))
                 }
             }
-            if (notifications.isEmpty()) { item { EmptyNotificationView() } }
-            else { items(notifications.size, { notifications[it].id }) { NotificationCard(notifications[it]) { onNotificationClick(notifications[it]) } } }
+            if (notifications.isEmpty()) {
+                item { EmptyNotificationView() }
+            } else {
+                items(notifications.size, { notifications[it].id }) { index ->
+                    NotificationCard(
+                        item = notifications[index],
+                        onClick = { onNotificationClick(notifications[index]) }
+                    )
+                }
+            }
             item { Spacer(Modifier.height(80.dp)) }
         }
     }
 }
 
 @Composable
-fun ExpandableFab(expanded: Boolean, onExpandedChange: (Boolean) -> Unit, onUrlInputClick: () -> Unit, onQrScanClick: () -> Unit) {
-    Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        AnimatedVisibility(expanded, enter = fadeIn() + slideInVertically { it }, exit = fadeOut() + slideOutVertically { it }) {
-            Column(horizontalAlignment = Alignment.End, verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                ExtendedFloatingActionButton(onClick = onQrScanClick, containerColor = MaterialTheme.colorScheme.secondaryContainer) {
-                    Icon(Icons.Default.QrCodeScanner, null); Spacer(Modifier.width(8.dp)); Text("QR 스캔")
+fun ExpandableFab(
+    expanded: Boolean,
+    onExpandedChange: (Boolean) -> Unit,
+    onUrlInputClick: () -> Unit,
+    onQrScanClick: () -> Unit
+) {
+    Column(
+        horizontalAlignment = Alignment.End,
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        AnimatedVisibility(
+            visible = expanded,
+            enter = fadeIn() + slideInVertically { it },
+            exit = fadeOut() + slideOutVertically { it }
+        ) {
+            Column(
+                horizontalAlignment = Alignment.End,
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                ExtendedFloatingActionButton(
+                    onClick = onQrScanClick,
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.QrCodeScanner,
+                        contentDescription = null
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Text("QR 스캔")
                 }
-                ExtendedFloatingActionButton(onClick = onUrlInputClick, containerColor = MaterialTheme.colorScheme.secondaryContainer) {
-                    Icon(Icons.Default.Link, null); Spacer(Modifier.width(8.dp)); Text("URL 입력")
+                ExtendedFloatingActionButton(
+                    onClick = onUrlInputClick,
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Link,
+                        contentDescription = null
+                    )
+                    Spacer(Modifier.width(8.dp))
+                    Text("URL 입력")
                 }
             }
         }
-        FloatingActionButton(onClick = { onExpandedChange(!expanded) }, containerColor = Primary) {
-            Icon(if (expanded) Icons.Default.Close else Icons.Default.Add, if (expanded) "닫기" else "URL 검사", tint = Color.White)
+        FloatingActionButton(
+            onClick = { onExpandedChange(!expanded) },
+            containerColor = Primary
+        ) {
+            Icon(
+                imageVector = if (expanded) Icons.Default.Close else Icons.Default.Add,
+                contentDescription = if (expanded) "닫기" else "URL 검사",
+                tint = Color.White
+            )
         }
     }
 }
@@ -250,22 +341,46 @@ private fun createInitialAnalysisSteps() = listOf(
     AnalysisStepState(AnalysisStep.OPENAI, StepStatus.PENDING)
 )
 
-private suspend fun updateStepsAndAnalyze(viewModel: UrlAnalysisViewModel, url: String, onStepUpdate: (List<AnalysisStepState>) -> Unit) {
+private suspend fun updateStepsAndAnalyze(
+    viewModel: UrlAnalysisViewModel,
+    url: String,
+    onStepUpdate: (List<AnalysisStepState>) -> Unit
+) {
     val steps = createInitialAnalysisSteps().toMutableList()
-    steps[0] = steps[0].copy(status = StepStatus.LOADING); onStepUpdate(steps.toList())
+    
+    steps[0] = steps[0].copy(status = StepStatus.LOADING)
+    onStepUpdate(steps.toList())
     kotlinx.coroutines.delay(300)
-    steps[0] = steps[0].copy(status = StepStatus.COMPLETED); onStepUpdate(steps.toList())
-    steps[1] = steps[1].copy(status = StepStatus.LOADING); onStepUpdate(steps.toList())
+    steps[0] = steps[0].copy(status = StepStatus.COMPLETED)
+    onStepUpdate(steps.toList())
+    
+    steps[1] = steps[1].copy(status = StepStatus.LOADING)
+    onStepUpdate(steps.toList())
     kotlinx.coroutines.delay(200)
-    steps[1] = steps[1].copy(status = StepStatus.COMPLETED); onStepUpdate(steps.toList())
-    steps[2] = steps[2].copy(status = StepStatus.LOADING); onStepUpdate(steps.toList())
-    steps[3] = steps[3].copy(status = StepStatus.LOADING); onStepUpdate(steps.toList())
+    steps[1] = steps[1].copy(status = StepStatus.COMPLETED)
+    onStepUpdate(steps.toList())
+    
+    steps[2] = steps[2].copy(status = StepStatus.LOADING)
+    onStepUpdate(steps.toList())
+    steps[3] = steps[3].copy(status = StepStatus.LOADING)
+    onStepUpdate(steps.toList())
+    
     viewModel.analyzeUrl(url, "notification", true)
+    
     var attempts = 0
-    while (viewModel.isLoading.value && attempts < 60) { kotlinx.coroutines.delay(500); attempts++ }
+    while (viewModel.isLoading.value && attempts < 60) {
+        kotlinx.coroutines.delay(500)
+        attempts++
+    }
+    
     steps[2] = steps[2].copy(status = StepStatus.COMPLETED)
-    steps[3] = steps[3].copy(status = StepStatus.COMPLETED); onStepUpdate(steps.toList())
-    steps[4] = steps[4].copy(status = if (viewModel.aiResponse.value != null) StepStatus.COMPLETED else StepStatus.SKIPPED); onStepUpdate(steps.toList())
+    steps[3] = steps[3].copy(status = StepStatus.COMPLETED)
+    onStepUpdate(steps.toList())
+    
+    steps[4] = steps[4].copy(
+        status = if (viewModel.aiResponse.value != null) StepStatus.COMPLETED else StepStatus.SKIPPED
+    )
+    onStepUpdate(steps.toList())
 }
 
 private fun getRecommendationForLevel(riskLevel: RiskLevel) = when (riskLevel) {
@@ -276,9 +391,59 @@ private fun getRecommendationForLevel(riskLevel: RiskLevel) = when (riskLevel) {
 }
 
 val sampleNotifications = listOf(
-    NotificationItem("1", NotificationSource.KAKAOTALK, "새 메시지", "안녕하세요! 이벤트 참여하시면 경품을 받으실 수 있습니다. https://kakao-event-2024.com/win", "https://kakao-event-2024.com/win", "방금 전", RiskLevel.UNKNOWN, 0, false),
-    NotificationItem("2", NotificationSource.SMS, "[Web발신]", "[국민은행] 고객님의 보안카드가 만료되었습니다. 아래 링크에서 갱신하세요: http://kbbank-secure.info/renew", "http://kbbank-secure.info/renew", "5분 전", RiskLevel.UNKNOWN, 0, false),
-    NotificationItem("3", NotificationSource.GMAIL, "Your Amazon Order", "Your package has been delivered. Track your order: https://www.amazon.com/track/order/12345", "https://www.amazon.com/track/order/12345", "1시간 전", RiskLevel.UNKNOWN, 0, false),
-    NotificationItem("4", NotificationSource.SMS, "[Web발신]", "택배가 도착했습니다. 확인하세요: http://cjlogistics-kr.co/track/9283746", "http://cjlogistics-kr.co/track/9283746", "2시간 전", RiskLevel.UNKNOWN, 0, false),
-    NotificationItem("5", NotificationSource.KAKAOTALK, "친구 메시지", "이거 진짜 좋은 이벤트야! 빨리 신청해 https://naver-event.co.kr/free-gift", "https://naver-event.co.kr/free-gift", "3시간 전", RiskLevel.UNKNOWN, 0, false)
+    NotificationItem(
+        id = "1",
+        source = NotificationSource.KAKAOTALK,
+        title = "새 메시지",
+        content = "안녕하세요! 이벤트 참여하시면 경품을 받으실 수 있습니다. https://kakao-event-2024.com/win",
+        url = "https://kakao-event-2024.com/win",
+        timeAgo = "방금 전",
+        riskLevel = RiskLevel.UNKNOWN,
+        riskScore = 0,
+        isAnalyzed = false
+    ),
+    NotificationItem(
+        id = "2",
+        source = NotificationSource.SMS,
+        title = "[Web발신]",
+        content = "[국민은행] 고객님의 보안카드가 만료되었습니다. 아래 링크에서 갱신하세요: http://kbbank-secure.info/renew",
+        url = "http://kbbank-secure.info/renew",
+        timeAgo = "5분 전",
+        riskLevel = RiskLevel.UNKNOWN,
+        riskScore = 0,
+        isAnalyzed = false
+    ),
+    NotificationItem(
+        id = "3",
+        source = NotificationSource.GMAIL,
+        title = "Your Amazon Order",
+        content = "Your package has been delivered. Track your order: https://www.amazon.com/track/order/12345",
+        url = "https://www.amazon.com/track/order/12345",
+        timeAgo = "1시간 전",
+        riskLevel = RiskLevel.UNKNOWN,
+        riskScore = 0,
+        isAnalyzed = false
+    ),
+    NotificationItem(
+        id = "4",
+        source = NotificationSource.SMS,
+        title = "[Web발신]",
+        content = "택배가 도착했습니다. 확인하세요: http://cjlogistics-kr.co/track/9283746",
+        url = "http://cjlogistics-kr.co/track/9283746",
+        timeAgo = "2시간 전",
+        riskLevel = RiskLevel.UNKNOWN,
+        riskScore = 0,
+        isAnalyzed = false
+    ),
+    NotificationItem(
+        id = "5",
+        source = NotificationSource.KAKAOTALK,
+        title = "친구 메시지",
+        content = "이거 진짜 좋은 이벤트야! 빨리 신청해 https://naver-event.co.kr/free-gift",
+        url = "https://naver-event.co.kr/free-gift",
+        timeAgo = "3시간 전",
+        riskLevel = RiskLevel.UNKNOWN,
+        riskScore = 0,
+        isAnalyzed = false
+    )
 )

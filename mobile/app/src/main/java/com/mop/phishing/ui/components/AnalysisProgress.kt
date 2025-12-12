@@ -26,16 +26,47 @@ enum class StepStatus { PENDING, LOADING, COMPLETED, SKIPPED, ERROR }
 fun AnalysisProgressCard(steps: List<AnalysisStepState>, modifier: Modifier = Modifier) {
     val isAnalyzing = steps.any { it.status == StepStatus.LOADING }
     val allCompleted = steps.all { it.status == StepStatus.COMPLETED || it.status == StepStatus.SKIPPED }
-    Card(modifier.fillMaxWidth(), RoundedCornerShape(16.dp), CardDefaults.cardColors(MaterialTheme.colorScheme.surface), CardDefaults.cardElevation(2.dp)) {
+    
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(2.dp)
+    ) {
         Column(Modifier.padding(20.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                if (isAnalyzing) CircularProgressIndicator(Modifier.size(24.dp), Primary, 2.dp)
-                else if (allCompleted) Icon(Icons.Default.CheckCircle, "완료", SafeGreen, Modifier.size(24.dp))
+                if (isAnalyzing) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        color = Primary,
+                        strokeWidth = 2.dp
+                    )
+                } else if (allCompleted) {
+                    Icon(
+                        imageVector = Icons.Default.CheckCircle,
+                        contentDescription = "완료",
+                        modifier = Modifier.size(24.dp),
+                        tint = SafeGreen
+                    )
+                }
                 Spacer(Modifier.width(12.dp))
-                Text(when { allCompleted -> "분석 완료"; isAnalyzing -> "분석 중..."; else -> "분석 대기" }, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
+                Text(
+                    text = when {
+                        allCompleted -> "분석 완료"
+                        isAnalyzing -> "분석 중..."
+                        else -> "분석 대기"
+                    },
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
             }
             Spacer(Modifier.height(20.dp))
-            steps.forEach { AnalysisStepItem(it); if (it != steps.last()) Spacer(Modifier.height(12.dp)) }
+            steps.forEach { stepState ->
+                AnalysisStepItem(stepState)
+                if (stepState != steps.last()) {
+                    Spacer(Modifier.height(12.dp))
+                }
+            }
         }
     }
 }
@@ -43,14 +74,62 @@ fun AnalysisProgressCard(steps: List<AnalysisStepState>, modifier: Modifier = Mo
 @Composable
 fun AnalysisStepItem(stepState: AnalysisStepState, modifier: Modifier = Modifier) {
     val (icon, label) = getStepInfo(stepState.step)
-    val alpha = when (stepState.status) { StepStatus.PENDING -> 0.4f; StepStatus.SKIPPED -> 0.6f; else -> 1f }
-    val iconTint = when (stepState.status) { StepStatus.PENDING -> MaterialTheme.colorScheme.onSurfaceVariant; StepStatus.LOADING -> Primary; StepStatus.COMPLETED -> SafeGreen; StepStatus.SKIPPED -> TextSecondary; StepStatus.ERROR -> DangerRed }
-    val displayIcon = when (stepState.status) { StepStatus.COMPLETED -> Icons.Default.CheckCircle; StepStatus.SKIPPED -> Icons.Default.Close; StepStatus.ERROR -> Icons.Default.Warning; else -> icon }
-    Row(modifier.fillMaxWidth().alpha(alpha), verticalAlignment = Alignment.CenterVertically) {
-        Icon(displayIcon, label, iconTint, Modifier.size(24.dp))
+    
+    val alpha = when (stepState.status) {
+        StepStatus.PENDING -> 0.4f
+        StepStatus.SKIPPED -> 0.6f
+        else -> 1f
+    }
+    
+    val iconTint = when (stepState.status) {
+        StepStatus.PENDING -> MaterialTheme.colorScheme.onSurfaceVariant
+        StepStatus.LOADING -> Primary
+        StepStatus.COMPLETED -> SafeGreen
+        StepStatus.SKIPPED -> TextSecondary
+        StepStatus.ERROR -> DangerRed
+    }
+    
+    val displayIcon = when (stepState.status) {
+        StepStatus.COMPLETED -> Icons.Default.CheckCircle
+        StepStatus.SKIPPED -> Icons.Default.Close
+        StepStatus.ERROR -> Icons.Default.Warning
+        else -> icon
+    }
+    
+    val statusText = when (stepState.status) {
+        StepStatus.PENDING -> label
+        StepStatus.LOADING -> "$label 중..."
+        StepStatus.COMPLETED -> "$label 완료"
+        StepStatus.SKIPPED -> "$label 건너뜀"
+        StepStatus.ERROR -> "$label 실패"
+    }
+    
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .alpha(alpha),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = displayIcon,
+            contentDescription = label,
+            modifier = Modifier.size(24.dp),
+            tint = iconTint
+        )
         Spacer(Modifier.width(12.dp))
-        Text(when (stepState.status) { StepStatus.PENDING -> label; StepStatus.LOADING -> "$label 중..."; StepStatus.COMPLETED -> "$label 완료"; StepStatus.SKIPPED -> "$label 건너뜀"; StepStatus.ERROR -> "$label 실패" }, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface, modifier = Modifier.weight(1f))
-        if (stepState.status == StepStatus.LOADING) CircularProgressIndicator(Modifier.size(16.dp), Primary, 2.dp)
+        Text(
+            text = statusText,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.weight(1f)
+        )
+        if (stepState.status == StepStatus.LOADING) {
+            CircularProgressIndicator(
+                modifier = Modifier.size(16.dp),
+                color = Primary,
+                strokeWidth = 2.dp
+            )
+        }
     }
 }
 

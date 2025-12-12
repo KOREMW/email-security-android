@@ -44,46 +44,135 @@ fun SettingsScreen(
 ) {
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(title = { Text("설정", style = MaterialTheme.typography.titleLarge) },
-                navigationIcon = { IconButton(onClick = onBackClick) { Icon(Icons.AutoMirrored.Filled.ArrowBack, "뒤로가기") } },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(MaterialTheme.colorScheme.background))
+            CenterAlignedTopAppBar(
+                title = { Text("설정", style = MaterialTheme.typography.titleLarge) },
+                navigationIcon = {
+                    IconButton(onClick = onBackClick) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "뒤로가기"
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background
+                )
+            )
         },
         containerColor = MaterialTheme.colorScheme.background
     ) { paddingValues ->
-        Column(modifier.fillMaxSize().padding(paddingValues).verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            ProfileCard(settingsState.userName, settingsState.userEmail, onProfileEditClick)
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            ProfileCard(
+                userName = settingsState.userName,
+                userEmail = settingsState.userEmail,
+                onEditClick = onProfileEditClick
+            )
 
-            SettingsSection("보안 설정", Icons.Default.Lock) {
-                SettingsToggleItem("자동 분석", "알림 수신 시 자동으로 URL 분석", settingsState.autoAnalysis) { onSettingChange(settingsState.copy(autoAnalysis = it)) }
-                HorizontalDivider(Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.outline.copy(0.2f))
-                SettingsToggleItem("고위험 자동 차단", "위험도 높은 URL 자동 차단", settingsState.autoBlockHighRisk) { onSettingChange(settingsState.copy(autoBlockHighRisk = it)) }
+            SettingsSection(title = "보안 설정", icon = Icons.Default.Lock) {
+                SettingsToggleItem(
+                    title = "자동 분석",
+                    description = "알림 수신 시 자동으로 URL 분석",
+                    checked = settingsState.autoAnalysis,
+                    onCheckedChange = { onSettingChange(settingsState.copy(autoAnalysis = it)) }
+                )
+                HorizontalDivider(
+                    modifier = Modifier.padding(vertical = 8.dp),
+                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
+                )
+                SettingsToggleItem(
+                    title = "고위험 자동 차단",
+                    description = "위험도 높은 URL 자동 차단",
+                    checked = settingsState.autoBlockHighRisk,
+                    onCheckedChange = { onSettingChange(settingsState.copy(autoBlockHighRisk = it)) }
+                )
             }
 
-            SettingsSection("알림 설정", Icons.Default.Star) {
-                SettingsToggleItem("푸시 알림", "위험 탐지 시 알림 받기", settingsState.pushNotification) { onSettingChange(settingsState.copy(pushNotification = it)) }
-                HorizontalDivider(Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.outline.copy(0.2f))
-                SettingsToggleItem("소리 알림", "위험 탐지 시 소리로 알림", settingsState.soundNotification) { onSettingChange(settingsState.copy(soundNotification = it)) }
-                HorizontalDivider(Modifier.padding(vertical = 8.dp), color = MaterialTheme.colorScheme.outline.copy(0.2f))
-                SettingsToggleItem("진동", "위험 탐지 시 진동 알림", settingsState.vibration) { onSettingChange(settingsState.copy(vibration = it)) }
+            SettingsSection(title = "알림 설정", icon = Icons.Default.Star) {
+                SettingsToggleItem(
+                    title = "푸시 알림",
+                    description = "위험 탐지 시 알림 받기",
+                    checked = settingsState.pushNotification,
+                    onCheckedChange = { onSettingChange(settingsState.copy(pushNotification = it)) }
+                )
+                HorizontalDivider(
+                    modifier = Modifier.padding(vertical = 8.dp),
+                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
+                )
+                SettingsToggleItem(
+                    title = "소리 알림",
+                    description = "위험 탐지 시 소리로 알림",
+                    checked = settingsState.soundNotification,
+                    onCheckedChange = { onSettingChange(settingsState.copy(soundNotification = it)) }
+                )
+                HorizontalDivider(
+                    modifier = Modifier.padding(vertical = 8.dp),
+                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
+                )
+                SettingsToggleItem(
+                    title = "진동",
+                    description = "위험 탐지 시 진동 알림",
+                    checked = settingsState.vibration,
+                    onCheckedChange = { onSettingChange(settingsState.copy(vibration = it)) }
+                )
             }
 
-            SettingsSection("화면 설정", Icons.Default.Settings) {
-                SettingsToggleItem("다크 모드", "어두운 테마 사용", settingsState.darkMode) { onSettingChange(settingsState.copy(darkMode = it)) }
+            SettingsSection(title = "화면 설정", icon = Icons.Default.Settings) {
+                SettingsToggleItem(
+                    title = "다크 모드",
+                    description = "어두운 테마 사용",
+                    checked = settingsState.darkMode,
+                    onCheckedChange = { onSettingChange(settingsState.copy(darkMode = it)) }
+                )
             }
 
-            SettingsSection("정보", Icons.Default.Info) {
-                SettingsNavigationItem("버전 정보", "v1.0.0", onVersionClick)
-                HorizontalDivider(Modifier.padding(vertical = 4.dp), color = MaterialTheme.colorScheme.outline.copy(0.2f))
-                SettingsNavigationItem("이용 약관", onClick = onTermsClick)
-                HorizontalDivider(Modifier.padding(vertical = 4.dp), color = MaterialTheme.colorScheme.outline.copy(0.2f))
-                SettingsNavigationItem("개인정보 처리방침", onClick = onPrivacyClick)
-                HorizontalDivider(Modifier.padding(vertical = 4.dp), color = MaterialTheme.colorScheme.outline.copy(0.2f))
-                SettingsNavigationItem("오픈소스 라이선스", onClick = onOpenSourceClick)
-                HorizontalDivider(Modifier.padding(vertical = 4.dp), color = MaterialTheme.colorScheme.outline.copy(0.2f))
-                SettingsNavigationItem("온보딩 다시 보기", onClick = onResetOnboardingClick)
+            SettingsSection(title = "정보", icon = Icons.Default.Info) {
+                SettingsNavigationItem(
+                    title = "버전 정보",
+                    value = "v1.0.0",
+                    onClick = onVersionClick
+                )
+                HorizontalDivider(
+                    modifier = Modifier.padding(vertical = 4.dp),
+                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
+                )
+                SettingsNavigationItem(
+                    title = "이용 약관",
+                    onClick = onTermsClick
+                )
+                HorizontalDivider(
+                    modifier = Modifier.padding(vertical = 4.dp),
+                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
+                )
+                SettingsNavigationItem(
+                    title = "개인정보 처리방침",
+                    onClick = onPrivacyClick
+                )
+                HorizontalDivider(
+                    modifier = Modifier.padding(vertical = 4.dp),
+                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
+                )
+                SettingsNavigationItem(
+                    title = "오픈소스 라이선스",
+                    onClick = onOpenSourceClick
+                )
+                HorizontalDivider(
+                    modifier = Modifier.padding(vertical = 4.dp),
+                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
+                )
+                SettingsNavigationItem(
+                    title = "온보딩 다시 보기",
+                    onClick = onResetOnboardingClick
+                )
             }
 
-            LogoutButton(onLogoutClick)
+            LogoutButton(onClick = onLogoutClick)
             Spacer(Modifier.height(16.dp))
         }
     }
