@@ -86,32 +86,74 @@ object ResponseMapper {
         response: AnalyzeSuspiciousUrlResponse,
         aiResponse: GetAIAnalysisResponse? = null
     ): AnalysisDetails {
+        // VirusTotal 전체 엔진 수 계산
+        val vtTotal = response.breakdown?.virusTotalStats?.total
+            ?: ((response.virusTotal?.malicious ?: 0) + 
+                (response.virusTotal?.harmless ?: 0) + 
+                (response.virusTotal?.undetected ?: 0) +
+                (response.virusTotal?.suspicious ?: 0))
+        
         return AnalysisDetails(
             localMlScore = response.breakdown?.localMlScore?.toFloat() ?: 0f,
             virusTotalMalicious = response.virusTotal?.malicious ?: 0,
             virusTotalSuspicious = response.virusTotal?.suspicious ?: 0,
+            virusTotalTotal = vtTotal,
             redirectCount = 0,  // 백엔드에서 redirect 정보 없음
+            finalScore = mapScoreToPercent(response.finalRiskScore),  // 최종 점수 추가
             aiExplanation = buildAiExplanation(aiResponse)
         )
     }
 
     /**
-     * AI 응답에서 설명 텍스트 생성
+     * AI 응답에서 상세 설명 텍스트 생성 (개선 버전)
      */
     private fun buildAiExplanation(aiResponse: GetAIAnalysisResponse?): String? {
         if (aiResponse == null) return null
-        
+
         val parts = mutableListOf<String>()
-        
-        // 요약
-        aiResponse.riskSummary?.let { parts.add(it) }
-        
-        // 위험 요소
-        if (!aiResponse.riskFactors.isNullOrEmpty()) {
-            parts.add("위험 요소: ${aiResponse.riskFactors.joinToString(", ")}")
+
+        // 1. 핵심 요약
+        aiResponse.riskSummary?.let {
+            parts.add("📌 $it")
         }
-        
-        return if (parts.isNotEmpty()) parts.joinToString("\n\n") else aiResponse.aiInsight
+
+        // 2. 피싱 유형 (새로 추가!)
+        aiResponse.phishingType?.let { type ->
+            if (type != "정상 사이트") {
+                parts.add("🎯 피싱 유형: $type")
+            }
+        }
+
+        // 3. 사칭 대상 브랜드 (새로 추가!)
+        aiResponse.targetedBrand?.let { brand ->
+            parts.add("⚠️ 사칭 대상: $brand")
+        }
+
+        // 4. 사용된 피싱 기법 (새로 추가!)
+        if (!aiResponse.phishingTechniques.isNullOrEmpty()) {
+            parts.add("🔧 피싱 기법: ${aiResponse.phishingTechniques.joinToString(", ")}")
+        }
+
+        // 5. 기술적 분석 (새로 추가!)
+        aiResponse.technicalAnalysis?.let {
+            parts.add("🔍 기술 분석: $it")
+        }
+
+        // 6. 예상 공격 시나리오 (새로 추가!)
+        aiResponse.attackScenario?.let {
+            parts.add("⚡ 공격 시나리오: $it")
+        }
+
+        // 7. 위험 요소
+        if (!aiResponse.riskFactors.isNullOrEmpty()) {
+            parts.add("🚨 위험 요소:\n• ${aiResponse.riskFactors.joinToString("\n• ")}")
+        }
+
+        return if (parts.isNotEmpty()) {
+            parts.joinToString("\n\n")
+        } else {
+            aiResponse.aiInsight
+        }
     }
 
     /**

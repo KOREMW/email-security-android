@@ -1,124 +1,222 @@
-# Email Security Android App
+# 🛡️ Email Security - AI 피싱 탐지 앱
 
-## 🎯 프로젝트 개요
+AI 기반 피싱 URL 탐지 Android 애플리케이션
 
-AI 기반 모바일 이메일 보안 앱으로, 실시간 악성 URL 및 QR코드 탐지를 통해 
-사용자의 이메일 피싱 및 악성코드 감염을 방지하는 애플리케이션입니다.
+## 📱 주요 기능
 
-### 핵심 기능
-- 📨 이메일 알림 감지 (NotificationListener)
-- 🔗 악성 URL/QR코드 실시간 탐지
-- 🤖 TensorFlow Lite 온디바이스 ML 모델
-- ☁️ Firebase Cloud Functions 연동
-- 🔍 VirusTotal & OpenAI API 기반 위험도 분석
-- 💡 AI 생성 위험 설명 제공
+- **실시간 URL 분석**: 알림에서 URL 자동 감지 및 분석
+- **AI 분석**: TensorFlow Lite (온디바이스) + OpenAI GPT-4o-mini (상세 분석)
+- **VirusTotal 연동**: 90+ 보안 엔진 검사 결과 통합
+- **QR 코드 스캔**: 카메라로 QR 코드 URL 분석
+- **위험 URL 자동 차단**: DANGER 등급 URL 자동 차단
 
----
+## 🏗️ 기술 스택
 
-## 👥 팀원 및 역할
+| 분류 | 기술 |
+|------|------|
+| **Language** | Kotlin 100% |
+| **UI** | Jetpack Compose |
+| **Architecture** | MVVM + Repository Pattern |
+| **DI** | Manual (ViewModel Factory) |
+| **Local DB** | Room Database |
+| **Settings** | DataStore |
+| **Network** | Retrofit + OkHttp |
+| **Auth** | Firebase Authentication (Google Sign-In) |
+| **Cloud** | Firebase Cloud Functions |
+| **ML** | TensorFlow Lite (13-feature model) |
+| **AI** | OpenAI GPT-4o-mini |
+| **Security API** | VirusTotal API |
 
-| 이름 | 역할 | 담당 영역 |
-|------|------|----------|
-| 엄민욱 |통합 | BackEnd: Firebase Cloud Functions, API 통합 |
-| 이가연 | 통합 |FrontEnd:  Android UI/UX, Jetpack Compose |
-| 모정원 | 통합 | ML: TensorFlow Lite, 모델 학습 및 최적화 |
+## 📋 사전 요구사항
 
----
+- **Android Studio**: Hedgehog (2023.1.1) 이상
+- **JDK**: 17 이상
+- **Android SDK**: 
+  - compileSdk: 35
+  - minSdk: 26
+  - targetSdk: 35
+- **Node.js**: 18 이상 (Backend용)
+- **Firebase CLI**: `npm install -g firebase-tools`
 
-## 🛠️ 기술 스택
+## 🚀 프로젝트 설정
 
-### Frontend
-- **언어**: Kotlin
-- **UI**: Jetpack Compose
-- **아키텍처**: MVVM
-- **라이브러리**: Retrofit2, Coroutine, FCM
+### 1. 저장소 클론
 
-### Backend
-- **플랫폼**: Firebase Cloud Functions
-- **런타임**: Node.js
-- **외부 API**: VirusTotal, OpenAI GPT-4
+```bash
+git clone https://github.com/YOUR_REPO/email-security-android.git
+cd email-security-android
+```
 
-### ML
-- **프레임워크**: TensorFlow Lite
-- **학습**: Python, TensorFlow
-- **모델 포맷**: .tflite (온디바이스)
+### 2. Firebase 설정 (필수!)
 
-### DevOps
-- **버전 관리**: Git & GitHub
-- **CI/CD**: GitHub Actions (예정)
-- **IDE**: Android Studio, VS Code, PyCharm
+#### 2-1. Firebase Console에서 프로젝트 생성
+1. [Firebase Console](https://console.firebase.google.com/) 접속
+2. 프로젝트 생성 또는 기존 프로젝트 선택
+3. Android 앱 추가:
+   - 패키지명: `com.mop.phishing`
+   - SHA-1 인증서 추가 (Google 로그인용)
 
----
+#### 2-2. google-services.json 다운로드
+1. Firebase Console → 프로젝트 설정 → 일반
+2. `google-services.json` 다운로드
+3. 파일을 `mobile/app/` 폴더에 복사
 
-## 📅 프로젝트 일정
+```
+mobile/
+└── app/
+    ├── google-services.json  ← 여기에 복사!
+    ├── build.gradle.kts
+    └── src/
+```
 
-| 주차 | 목표 | 상태 |
-|------|------|------|
-| Week 10 | 개발 환경 구축, 기본 프로토타입 | 🔄 진행 중 |
-| Week 11 | 이메일 감지 + ML 모델 완성 | ⏳ 예정 |
-| Week 12 | 클라우드 연동 + API 통합 | ⏳ 예정 |
-| Week 13 | UI 완성 + 성능 최적화 | ⏳ 예정 |
-| Week 14 | Play Store 배포 + 발표 준비 | ⏳ 예정 |
+#### 2-3. Firebase 서비스 활성화
+Firebase Console에서 다음 서비스 활성화:
+- ✅ Authentication (Google 로그인)
+- ✅ Firestore Database
+- ✅ Cloud Functions
 
----
+### 3. Backend 설정 (Cloud Functions)
+
+#### 3-1. Firebase CLI 로그인
+
+```bash
+cd backend/functions
+npm install
+firebase login
+firebase use YOUR_PROJECT_ID
+```
+
+#### 3-2. API 키 설정
+
+**방법 1: Firebase Secrets (권장)**
+```bash
+firebase functions:secrets:set VIRUSTOTAL_API_KEY
+# 프롬프트에 API 키 입력
+
+firebase functions:secrets:set OPENAI_API_KEY
+# 프롬프트에 API 키 입력
+```
+
+**방법 2: .env 파일**
+```bash
+# backend/functions/.env 파일 생성
+VIRUSTOTAL_API_KEY=your_virustotal_api_key
+OPENAI_API_KEY=your_openai_api_key
+```
+
+#### 3-3. Functions 배포
+
+```bash
+firebase deploy --only functions
+```
+
+#### API 키 발급 방법
+
+| API | 발급 링크 | 비고 |
+|-----|----------|------|
+| VirusTotal | [virustotal.com](https://www.virustotal.com/gui/join-us) | 무료 계정: 4회/분 |
+| OpenAI | [platform.openai.com](https://platform.openai.com/api-keys) | 유료 (사용량 기반) |
+
+### 4. Android 앱 빌드
+
+#### Android Studio에서 열기
+1. Android Studio 실행
+2. `File` → `Open` → `email-security-android/mobile` 폴더 선택
+3. Gradle Sync 대기 (자동 실행)
+
+#### 빌드 및 실행
+```bash
+# 터미널에서 (선택사항)
+cd mobile
+./gradlew assembleDebug
+```
+
+또는 Android Studio에서 ▶️ Run 버튼 클릭
 
 ## 📁 프로젝트 구조
-```email-security-android/
-├── mobile/
-│   ├── app/
-│   │   ├── src/
-│   │   │   ├── main/
-│   │   │   │   ├── kotlin/com/example/emailsecurity/
-│   │   │   │   │   ├── MainActivity.kt
-│   │   │   │   │   ├── ui/
-│   │   │   │   │   ├── viewmodel/
-│   │   │   │   │   └── data/
-│   │   │   │   └── res/
-│   │   │   └── test/
-│   │   ├── build.gradle.kts
-│   │   └── proguard-rules.pro
-│   ├── settings.gradle.kts
-│   └── local.properties
-│
-├── backend/
-│   ├── functions/
-│   │   ├── index.js
-│   │   └── package.json
-│   ├── .firebaserc
-│   ├── firebase.json
-│   └── .env (커밋 금지)
-│
-├── ml/
-│   ├── model_training.py
-│   ├── model_conversion.py
-│   ├── tflite_test.py
-│   ├── requirements.txt
-│   └── model.tflite
-│
-├── docs/
-│   ├── architecture.md
-│   ├── api.md
-│   └── roadmap.md
-│
-├── .github/
-│   └── workflows/
-│       └── ci.yml (선택사항)
-│
-├── .gitignore
-├── LICENSE
-├── README.md
-└── CONTRIBUTING.md (선택사항)
+
 ```
+email-security-android/
+├── mobile/                      # Android 앱
+│   ├── app/
+│   │   ├── src/main/
+│   │   │   ├── java/com/mop/phishing/
+│   │   │   │   ├── ui/          # Compose UI
+│   │   │   │   ├── data/        # Repository, Room, API
+│   │   │   │   ├── auth/        # Firebase Auth
+│   │   │   │   ├── ml/          # TensorFlow Lite
+│   │   │   │   └── util/        # 유틸리티
+│   │   │   ├── assets/          # ML 모델 파일
+│   │   │   └── res/             # 리소스
+│   │   └── google-services.json # ⚠️ 별도 설정 필요
+│   └── build.gradle.kts
+│
+├── backend/                     # Firebase Cloud Functions
+│   └── functions/
+│       ├── index.js             # API 엔드포인트
+│       ├── src/                 # 서비스 모듈
+│       └── package.json
+│
+├── ml/                          # ML 모델 학습 (Python)
+│   ├── train_model.py
+│   └── requirements.txt
+│
+└── README.md
+```
+
+## 🔧 트러블슈팅
+
+### google-services.json 없음
+```
+ERROR: File google-services.json is missing
+```
+→ Firebase Console에서 다운로드 후 `mobile/app/`에 복사
+
+### SHA-1 인증서 오류 (Google 로그인 실패)
+```bash
+# 디버그 SHA-1 확인
+cd mobile
+./gradlew signingReport
+```
+→ 출력된 SHA-1을 Firebase Console에 추가
+
+### API 키 미설정
+```
+ERROR: VirusTotal API key not configured
+```
+→ Firebase Secrets 또는 .env 파일에 API 키 설정
+
+### Gradle Sync 실패
+```bash
+# 캐시 삭제 후 재시도
+cd mobile
+./gradlew clean
+./gradlew --refresh-dependencies
+```
+
+## 🔑 민감 정보 관리
+
+⚠️ **절대 Git에 커밋하지 마세요!**
+
+| 파일 | 내용 | 공유 방법 |
+|------|------|----------|
+| `google-services.json` | Firebase 설정 | 팀 드라이브/메신저로 별도 공유 |
+| `backend/functions/.env` | API 키 | 각자 발급 또는 팀장이 공유 |
+| `*.keystore` | 서명 키 | 팀 드라이브로 별도 공유 |
+
+## 👥 팀원 온보딩 체크리스트
+
+- [ ] 저장소 클론
+- [ ] google-services.json 받아서 복사
+- [ ] Android Studio에서 프로젝트 열기
+- [ ] Gradle Sync 성공 확인
+- [ ] 에뮬레이터/실기기에서 앱 실행
+- [ ] (선택) Backend 설정 및 배포
+
+## 📞 문의
+
+프로젝트 관련 문의: [팀장 이름/연락처]
+
 ---
 
-## 🚀 로컬 실행 방법
-
-### 사전 요구사항
-- Android Studio (최신 버전)
-- Python 3.9+
-- Node.js 14+
-- Firebase 프로젝트 생성
-- GitHub 저장소 클론
-
-### Android 앱 실행
-
+**한성대학교 융합보안학과 PBL 프로젝트**

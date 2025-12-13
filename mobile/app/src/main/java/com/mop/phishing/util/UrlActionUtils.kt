@@ -1,10 +1,14 @@
 package com.mop.phishing.util
 
+import android.accessibilityservice.AccessibilityServiceInfo
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.provider.Settings
+import android.view.accessibility.AccessibilityManager
 import android.widget.Toast
+import com.mop.phishing.service.UrlBlockerAccessibilityService
 import com.mop.phishing.ui.components.RiskLevel
 import com.mop.phishing.ui.screens.detail.AnalysisResult
 
@@ -90,8 +94,130 @@ object UrlBlockManager {
 
 data class BlockStats(val blockedUrlCount: Int, val blockedDomainCount: Int, val totalBlocked: Int)
 
+/**
+ * 접근성 및 권한 관련 유틸리티
+ */
 object AccessibilityUtils {
-    fun openAccessibilitySettings(context: Context) { context.startActivity(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).apply { flags = Intent.FLAG_ACTIVITY_NEW_TASK }) }
-    fun openNotificationListenerSettings(context: Context) { context.startActivity(Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS").apply { flags = Intent.FLAG_ACTIVITY_NEW_TASK }) }
-    fun openAppSettings(context: Context) { context.startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply { data = Uri.fromParts("package", context.packageName, null); flags = Intent.FLAG_ACTIVITY_NEW_TASK }) }
+    
+    /**
+     * 접근성 서비스 활성화 여부 확인
+     */
+    fun isAccessibilityServiceEnabled(context: Context): Boolean {
+        val am = context.getSystemService(Context.ACCESSIBILITY_SERVICE) as? AccessibilityManager
+            ?: return false
+        
+        val enabledServices = am.getEnabledAccessibilityServiceList(
+            AccessibilityServiceInfo.FEEDBACK_GENERIC
+        )
+        
+        val serviceName = "${context.packageName}/${UrlBlockerAccessibilityService::class.java.canonicalName}"
+        
+        return enabledServices.any { 
+            it.id == serviceName || 
+            it.resolveInfo?.serviceInfo?.name == UrlBlockerAccessibilityService::class.java.canonicalName
+        }
+    }
+    
+    /**
+     * 오버레이 권한 확인
+     */
+    fun canDrawOverlays(context: Context): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            Settings.canDrawOverlays(context)
+        } else {
+            true
+        }
+    }
+    
+    /**
+     * URL 차단 기능이 완전히 활성화되었는지 확인
+     * (접근성 서비스 + 오버레이 권한 모두 필요)
+     */
+    fun isUrlBlockingFullyEnabled(context: Context): Boolean {
+        return isAccessibilityServiceEnabled(context) && canDrawOverlays(context)
+    }
+    
+    /**
+     * 접근성 설정 화면 열기
+     */
+    fun openAccessibilitySettings(context: Context) { 
+        context.startActivity(
+            Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS).apply { 
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK 
+            }
+        ) 
+    }
+    
+    /**
+     * 오버레이 권한 설정 화면 열기
+     */
+    fun openOverlayPermissionSettings(context: Context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            context.startActivity(
+                Intent(
+                    Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    Uri.parse("package:${context.packageName}")
+                ).apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                }
+            )
+        }
+    }
+    
+    /**
+     * 알림 리스너 설정 화면 열기
+     */
+    fun openNotificationListenerSettings(context: Context) { 
+        context.startActivity(
+            Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS").apply { 
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK 
+            }
+        ) 
+    }
+    
+    /**
+     * 앱 설정 화면 열기
+     */
+    fun openAppSettings(context: Context) { 
+        context.startActivity(
+            Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply { 
+                data = Uri.fromParts("package", context.packageName, null)
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK 
+            }
+        ) 
+    }
+    
+    /**
+     * 권한 상태 데이터 클래스
+     */
+    data class PermissionStatus(
+        val accessibilityEnabled: Boolean,
+        val overlayEnabled: Boolean,
+        val notificationListenerEnabled: Boolean
+    ) {
+        val isFullyEnabled: Boolean
+            get() = accessibilityEnabled && overlayEnabled
+    }
+    
+    /**
+     * 모든 권한 상태 확인
+     */
+    fun checkAllPermissions(context: Context): PermissionStatus {
+        return PermissionStatus(
+            accessibilityEnabled = isAccessibilityServiceEnabled(context),
+            overlayEnabled = canDrawOverlays(context),
+            notificationListenerEnabled = isNotificationListenerEnabled(context)
+        )
+    }
+    
+    /**
+     * 알림 리스너 권한 확인
+     */
+    private fun isNotificationListenerEnabled(context: Context): Boolean {
+        val flat = Settings.Secure.getString(
+            context.contentResolver,
+            "enabled_notification_listeners"
+        )
+        return flat?.contains(context.packageName) == true
+    }
 }

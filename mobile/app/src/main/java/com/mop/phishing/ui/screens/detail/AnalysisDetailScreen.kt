@@ -7,9 +7,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Block
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Share
@@ -20,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -45,9 +48,20 @@ data class AnalysisDetails(
     val localMlScore: Float = 0f,
     val virusTotalMalicious: Int = 0,
     val virusTotalSuspicious: Int = 0,
+    val virusTotalTotal: Int = 0,
     val redirectCount: Int = 0,
+    val finalScore: Int = 0,
     val aiExplanation: String? = null
 )
+
+/**
+ * 현재 테마가 다크모드인지 확인하는 헬퍼 함수
+ * MaterialTheme의 배경색 밝기로 판단 (시스템 설정이 아닌 실제 적용된 테마 기준)
+ */
+@Composable
+private fun isDarkTheme(): Boolean {
+    return MaterialTheme.colorScheme.background.luminance() < 0.5f
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -58,6 +72,7 @@ fun AnalysisDetailScreen(
     onBackClick: () -> Unit,
     onShareClick: () -> Unit,
     onBlockClick: () -> Unit,
+    isBlocked: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     Scaffold(
@@ -80,6 +95,7 @@ fun AnalysisDetailScreen(
                         result = analysisState.result,
                         onShareClick = onShareClick,
                         onBlockClick = onBlockClick,
+                        isBlocked = isBlocked,
                         modifier = Modifier.padding(horizontal = 16.dp)
                     )
                 }
@@ -163,12 +179,13 @@ fun AnalysisResultContent(
     result: AnalysisResult,
     onShareClick: () -> Unit,
     onBlockClick: () -> Unit,
+    isBlocked: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     Column(modifier) {
         RiskScoreCard(result.riskLevel, result.riskScore)
         Spacer(Modifier.height(16.dp))
-        RecommendationCard(result.recommendation, result.canAccess)
+        RecommendationCard(result.recommendation, result.riskLevel)
         Spacer(Modifier.height(16.dp))
         result.details?.let {
             AnalysisDetailsCard(it)
@@ -191,21 +208,48 @@ fun AnalysisResultContent(
                 Spacer(Modifier.width(8.dp))
                 Text("공유하기")
             }
+            
+            // 위험도별 버튼 스타일 결정
+            val (buttonText, buttonColor, buttonIcon) = when {
+                // 이미 차단된 상태
+                isBlocked -> Triple(
+                    "차단 해제",
+                    DangerRed,
+                    Icons.Default.LockOpen
+                )
+                // 차단되지 않은 상태 - 위험도에 따라 다르게 표시
+                result.riskLevel == RiskLevel.DANGER -> Triple(
+                    "차단하기",
+                    DangerRed,
+                    Icons.Default.Block
+                )
+                result.riskLevel == RiskLevel.CAUTION -> Triple(
+                    "차단 권장",
+                    WarningYellow,
+                    Icons.Default.Warning
+                )
+                else -> Triple(
+                    "차단하기",
+                    Color(0xFF9E9E9E),  // 회색
+                    Icons.Default.Block
+                )
+            }
+            
             Button(
                 onClick = onBlockClick,
                 modifier = Modifier.weight(1f),
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = if (result.canAccess) DangerRed else Primary
+                    containerColor = buttonColor
                 )
             ) {
                 Icon(
-                    imageVector = if (result.canAccess) Icons.Default.Close else Icons.Default.CheckCircle,
+                    imageVector = buttonIcon,
                     contentDescription = null,
                     modifier = Modifier.size(18.dp)
                 )
                 Spacer(Modifier.width(8.dp))
-                Text(if (result.canAccess) "차단하기" else "접속 가능")
+                Text(buttonText)
             }
         }
     }
@@ -289,11 +333,33 @@ fun RiskScoreCard(riskLevel: RiskLevel, riskScore: Int, modifier: Modifier = Mod
 }
 
 @Composable
-fun RecommendationCard(recommendation: String, canAccess: Boolean, modifier: Modifier = Modifier) {
+fun RecommendationCard(recommendation: String, riskLevel: RiskLevel, modifier: Modifier = Modifier) {
+    // MaterialTheme 기반 다크모드 감지 (시스템 설정이 아닌 실제 테마)
+    val isDark = isDarkTheme()
+
+    // 위험도에 따른 배경색 (다크모드 대응)
+    val backgroundColor = when (riskLevel) {
+        RiskLevel.SAFE -> if (isDark) SafeGreenDark else SafeGreenLight
+        RiskLevel.CAUTION -> if (isDark) Color(0xFF2D1F00) else WarningYellowLight  // 어두운 주황/노랑
+        RiskLevel.DANGER -> if (isDark) Color(0xFF2D0A0A) else DangerRedLight  // 어두운 빨강
+        RiskLevel.UNKNOWN -> if (isDark) CardDark else Color(0xFFF5F5F5)
+    }
+
+    // 다크모드에서 텍스트 색상 조정
+    val textColor = if (isDark) Color.White else MaterialTheme.colorScheme.onSurface
+
+    // 위험도에 따른 아이콘/뱃지 색상
+    val accentColor = when (riskLevel) {
+        RiskLevel.SAFE -> if (isDark) Color(0xFF81C784) else SafeGreen  // 밝은 초록
+        RiskLevel.CAUTION -> if (isDark) Color(0xFFFFB74D) else WarningYellow  // 밝은 주황
+        RiskLevel.DANGER -> if (isDark) Color(0xFFFF8A80) else DangerRed  // 밝은 빨강
+        RiskLevel.UNKNOWN -> if (isDark) Color(0xFFBDBDBD) else Color(0xFF757575)
+    }
+
     Card(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(if (canAccess) SafeGreenLight else DangerRedLight)
+        colors = CardDefaults.cardColors(backgroundColor)
     ) {
         Column(Modifier.padding(20.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -301,39 +367,49 @@ fun RecommendationCard(recommendation: String, canAccess: Boolean, modifier: Mod
                     imageVector = Icons.Default.Info,
                     contentDescription = null,
                     modifier = Modifier.size(24.dp),
-                    tint = if (canAccess) SafeGreen else DangerRed
+                    tint = accentColor
                 )
                 Spacer(Modifier.width(8.dp))
                 Text(
                     text = "권장 사항",
                     style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = textColor
                 )
             }
             Spacer(Modifier.height(12.dp))
             Text(
                 text = recommendation,
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface
+                color = textColor.copy(alpha = 0.9f)
             )
             Spacer(Modifier.height(12.dp))
             Surface(
                 shape = RoundedCornerShape(8.dp),
-                color = if (canAccess) SafeGreen else DangerRed
+                color = accentColor
             ) {
                 Row(
                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
-                        imageVector = if (canAccess) Icons.Default.CheckCircle else Icons.Default.Close,
+                        imageVector = when (riskLevel) {
+                            RiskLevel.SAFE -> Icons.Default.CheckCircle
+                            RiskLevel.CAUTION -> Icons.Default.Warning
+                            RiskLevel.DANGER -> Icons.Default.Close
+                            RiskLevel.UNKNOWN -> Icons.Default.Info
+                        },
                         contentDescription = null,
                         modifier = Modifier.size(16.dp),
                         tint = Color.White
                     )
                     Spacer(Modifier.width(6.dp))
                     Text(
-                        text = if (canAccess) "접속 가능" else "접속 차단 권장",
+                        text = when (riskLevel) {
+                            RiskLevel.SAFE -> "접속 가능"
+                            RiskLevel.CAUTION -> "주의 필요"
+                            RiskLevel.DANGER -> "접속 차단 권장"
+                            RiskLevel.UNKNOWN -> "분석 필요"
+                        },
                         style = MaterialTheme.typography.labelMedium,
                         color = Color.White
                     )
@@ -352,18 +428,42 @@ fun AnalysisDetailsCard(details: AnalysisDetails, modifier: Modifier = Modifier)
     ) {
         Column(Modifier.padding(20.dp)) {
             Text(
-                text = "상세 분석",
+                text = "상세 분석 결과",
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurface
             )
             Spacer(Modifier.height(16.dp))
-            DetailItem(Icons.Default.Settings, "온디바이스 ML", String.format("%.1f%%", details.localMlScore * 100))
-            DetailItem(Icons.Default.Warning, "VirusTotal", "악성 ${details.virusTotalMalicious}개 / 의심 ${details.virusTotalSuspicious}개")
-            DetailItem(Icons.Default.Search, "리다이렉트", "${details.redirectCount}회")
-            
+
+            ScoreDetailItem(
+                icon = Icons.Default.Settings,
+                label = "온디바이스 ML 분석",
+                score = details.localMlScore,
+                description = "TensorFlow Lite 모델 기반 위험도 분석"
+            )
+
+            Spacer(Modifier.height(12.dp))
+            HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
+            Spacer(Modifier.height(12.dp))
+
+            VirusTotalDetailItem(
+                malicious = details.virusTotalMalicious,
+                suspicious = details.virusTotalSuspicious,
+                total = details.virusTotalTotal
+            )
+
+            Spacer(Modifier.height(12.dp))
+            HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
+            Spacer(Modifier.height(12.dp))
+
+            EnsembleScoreItem(
+                mlScore = details.localMlScore,
+                vtMalicious = details.virusTotalMalicious,
+                finalScore = details.finalScore
+            )
+
             details.aiExplanation?.let { explanation ->
                 Spacer(Modifier.height(12.dp))
-                HorizontalDivider()
+                HorizontalDivider(color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f))
                 Spacer(Modifier.height(12.dp))
                 Row(verticalAlignment = Alignment.Top) {
                     Icon(
@@ -375,7 +475,7 @@ fun AnalysisDetailsCard(details: AnalysisDetails, modifier: Modifier = Modifier)
                     Spacer(Modifier.width(12.dp))
                     Column {
                         Text(
-                            text = "AI 분석",
+                            text = "AI 분석 요약",
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -387,6 +487,235 @@ fun AnalysisDetailsCard(details: AnalysisDetails, modifier: Modifier = Modifier)
                         )
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+fun ScoreDetailItem(
+    icon: ImageVector,
+    label: String,
+    score: Float,
+    description: String
+) {
+    val scorePercent = (score * 100).toInt()
+    val scoreColor = when {
+        scorePercent >= 70 -> DangerRed
+        scorePercent >= 40 -> WarningYellow
+        else -> SafeGreen
+    }
+
+    Column {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                modifier = Modifier.size(20.dp),
+                tint = Primary
+            )
+            Spacer(Modifier.width(12.dp))
+            Text(
+                text = label,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Spacer(Modifier.weight(1f))
+            Text(
+                text = "${scorePercent}%",
+                style = MaterialTheme.typography.titleMedium,
+                color = scoreColor
+            )
+        }
+        Spacer(Modifier.height(8.dp))
+        LinearProgressIndicator(
+            progress = { score },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(8.dp),
+            color = scoreColor,
+            trackColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
+        )
+        Spacer(Modifier.height(4.dp))
+        Text(
+            text = description,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+@Composable
+fun VirusTotalDetailItem(
+    malicious: Int,
+    suspicious: Int,
+    total: Int
+) {
+    val hasResults = total > 0
+
+    Column {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                imageVector = Icons.Default.Warning,
+                contentDescription = null,
+                modifier = Modifier.size(20.dp),
+                tint = Primary
+            )
+            Spacer(Modifier.width(12.dp))
+            Text(
+                text = "VirusTotal 검사",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        }
+        Spacer(Modifier.height(8.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = malicious.toString(),
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = if (malicious > 0) DangerRed else MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = "악성",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            Box(
+                modifier = Modifier
+                    .width(1.dp)
+                    .height(40.dp)
+                    .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
+            )
+
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = suspicious.toString(),
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = if (suspicious > 0) WarningYellow else MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = "의심",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            Box(
+                modifier = Modifier
+                    .width(1.dp)
+                    .height(40.dp)
+                    .background(MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
+            )
+
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                val clean = if (total > 0) total - malicious - suspicious else 0
+                Text(
+                    text = clean.toString(),
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = SafeGreen
+                )
+                Text(
+                    text = "정상",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
+
+        Spacer(Modifier.height(4.dp))
+        Text(
+            text = if (hasResults) "총 ${total}개 엔진에서 검사됨" 
+                   else "VirusTotal API 결과 없음 (API 제한 또는 미등록 URL)",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
+}
+
+@Composable
+fun EnsembleScoreItem(
+    mlScore: Float,
+    vtMalicious: Int,
+    finalScore: Int
+) {
+    val finalScoreColor = when {
+        finalScore >= 70 -> DangerRed
+        finalScore >= 40 -> WarningYellow
+        else -> SafeGreen
+    }
+
+    Column {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(
+                imageVector = Icons.Default.Search,
+                contentDescription = null,
+                modifier = Modifier.size(20.dp),
+                tint = Primary
+            )
+            Spacer(Modifier.width(12.dp))
+            Text(
+                text = "최종 위험도 점수",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        }
+        Spacer(Modifier.height(8.dp))
+
+        Surface(
+            shape = RoundedCornerShape(8.dp),
+            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+        ) {
+            Column(Modifier.padding(12.dp)) {
+                Text(
+                    text = "ML과 VirusTotal 결과를 종합한 최종 점수입니다.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(Modifier.height(8.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = "최종 위험도",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Spacer(Modifier.weight(1f))
+                    Text(
+                        text = "${finalScore}점",
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = finalScoreColor
+                    )
+                    Text(
+                        text = " / 100",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+                Spacer(Modifier.height(8.dp))
+                LinearProgressIndicator(
+                    progress = { finalScore / 100f },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(8.dp),
+                    color = finalScoreColor,
+                    trackColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f),
+                )
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    text = when {
+                        finalScore >= 70 -> "⚠️ 고위험: 접속하지 마세요"
+                        finalScore >= 40 -> "⚡ 주의 필요: 신중하게 접근하세요"
+                        else -> "✅ 안전: 정상적인 링크입니다"
+                    },
+                    style = MaterialTheme.typography.labelMedium,
+                    color = finalScoreColor
+                )
             }
         }
     }
@@ -423,10 +752,15 @@ fun DetailItem(icon: ImageVector, label: String, value: String) {
 
 @Composable
 fun AnalysisErrorContent(message: String, modifier: Modifier = Modifier) {
+    val isDark = isDarkTheme()
+    val backgroundColor = if (isDark) DangerRedDark else DangerRedLight
+    val textColor = if (isDark) Color.White else MaterialTheme.colorScheme.onSurface
+    val accentColor = if (isDark) Color(0xFFFF8A80) else DangerRed
+
     Card(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(DangerRedLight)
+        colors = CardDefaults.cardColors(backgroundColor)
     ) {
         Column(
             modifier = Modifier.padding(20.dp),
@@ -436,19 +770,19 @@ fun AnalysisErrorContent(message: String, modifier: Modifier = Modifier) {
                 imageVector = Icons.Default.Warning,
                 contentDescription = null,
                 modifier = Modifier.size(48.dp),
-                tint = DangerRed
+                tint = accentColor
             )
             Spacer(Modifier.height(12.dp))
             Text(
                 text = "분석 실패",
                 style = MaterialTheme.typography.titleMedium,
-                color = DangerRed
+                color = accentColor
             )
             Spacer(Modifier.height(8.dp))
             Text(
                 text = message,
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface,
+                color = textColor,
                 textAlign = TextAlign.Center
             )
         }

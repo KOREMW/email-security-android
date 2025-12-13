@@ -55,34 +55,42 @@ val onboardingPages = listOf(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun OnboardingScreen(onFinish: () -> Unit, onSkip: () -> Unit) {
+fun OnboardingScreen(
+    onFinish: () -> Unit,
+    onSkip: () -> Unit,
+    onLoginClick: (() -> Unit)? = null
+) {
     val pagerState = rememberPagerState(pageCount = { onboardingPages.size })
     val coroutineScope = rememberCoroutineScope()
+    val isLastPage = pagerState.currentPage == onboardingPages.size - 1
 
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        TextButton(
-            onClick = onSkip,
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(16.dp)
-        ) {
-            Text(
-                text = "건너뛰기",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+        // 마지막 페이지가 아닐 때만 건너뛰기 버튼 표시
+        if (!isLastPage) {
+            TextButton(
+                onClick = onSkip,
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(16.dp)
+            ) {
+                Text(
+                    text = "건너뛰기",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
         }
-        
+
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(Modifier.height(100.dp))
-            
+
             HorizontalPager(
                 state = pagerState,
                 modifier = Modifier
@@ -91,7 +99,7 @@ fun OnboardingScreen(onFinish: () -> Unit, onSkip: () -> Unit) {
             ) { page ->
                 OnboardingPageContent(onboardingPages[page])
             }
-            
+
             Row(
                 modifier = Modifier.padding(bottom = 32.dp),
                 horizontalArrangement = Arrangement.Center
@@ -112,30 +120,71 @@ fun OnboardingScreen(onFinish: () -> Unit, onSkip: () -> Unit) {
                     )
                 }
             }
-            
-            Button(
-                onClick = {
-                    if (pagerState.currentPage == onboardingPages.size - 1) {
-                        onFinish()
-                    } else {
+
+            // 마지막 페이지: 비회원 시작 + Google 로그인 버튼
+            if (isLastPage) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp)
+                        .padding(bottom = 32.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    // 비회원 시작 버튼
+                    OutlinedButton(
+                        onClick = onFinish,
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(56.dp),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = Primary
+                        )
+                    ) {
+                        Text(
+                            text = "비회원 시작",
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                    }
+
+                    // Google 로그인 버튼
+                    Button(
+                        onClick = { onLoginClick?.invoke() },
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(56.dp),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Primary)
+                    ) {
+                        Text(
+                            text = "Google 로그인",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = Color.White
+                        )
+                    }
+                }
+            } else {
+                // 다음 버튼
+                Button(
+                    onClick = {
                         coroutineScope.launch {
                             pagerState.animateScrollToPage(pagerState.currentPage + 1)
                         }
-                    }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 24.dp)
-                    .padding(bottom = 32.dp)
-                    .height(56.dp),
-                shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = Primary)
-            ) {
-                Text(
-                    text = if (pagerState.currentPage == onboardingPages.size - 1) "시작하기" else "다음",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = Color.White
-                )
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp)
+                        .padding(bottom = 32.dp)
+                        .height(56.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Primary)
+                ) {
+                    Text(
+                        text = "다음",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = Color.White
+                    )
+                }
             }
         }
     }

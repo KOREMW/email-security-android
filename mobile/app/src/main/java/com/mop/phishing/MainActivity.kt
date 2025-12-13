@@ -26,18 +26,18 @@ class MainActivity : AppCompatActivity() {
         private const val TAG = "MainActivity"
     }
 
-    private lateinit var classifier: UrlClassifier
+    private var classifier: UrlClassifier? = null
     private lateinit var viewModel: UrlAnalysisViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        
+
         // 알림 권한 확인
         ensureNotificationPermission()
 
-        // 초기화
-        classifier = UrlClassifier(this)
+        // 초기화 (싱글톤 사용)
+        classifier = UrlClassifier.getInstance(this)
         viewModel = ViewModelProvider(this)[UrlAnalysisViewModel::class.java]
 
         // UI 요소
@@ -171,6 +171,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        classifier.close()
+        // 싱글톤이므로 close하지 않음
+        classifier = null
     }
 }

@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalFocusManager
@@ -30,6 +31,15 @@ import com.mop.phishing.ui.screens.detail.AnalysisDetails
 import com.mop.phishing.ui.screens.detail.AnalysisResult
 import com.mop.phishing.ui.screens.detail.AnalysisState
 import com.mop.phishing.ui.theme.*
+
+/**
+ * 현재 테마가 다크모드인지 확인하는 헬퍼 함수
+ * MaterialTheme의 배경색 밝기로 판단 (시스템 설정이 아닌 실제 적용된 테마 기준)
+ */
+@Composable
+fun isDarkTheme(): Boolean {
+    return MaterialTheme.colorScheme.background.luminance() < 0.5f
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -261,12 +271,27 @@ fun AnalysisLoadingCard(modifier: Modifier = Modifier) {
 
 @Composable
 fun AnalysisResultCard(result: AnalysisResult, modifier: Modifier = Modifier) {
+    // MaterialTheme 기반 다크모드 감지 (시스템 설정이 아닌 실제 테마)
+    val isDark = isDarkTheme()
+    
     val (backgroundColor, statusIcon, statusText) = when (result.riskLevel) {
         RiskLevel.SAFE -> Triple(SafeGreen, Icons.Default.CheckCircle, "안전")
         RiskLevel.CAUTION -> Triple(WarningYellow, Icons.Default.Warning, "주의")
         RiskLevel.DANGER -> Triple(DangerRed, Icons.Default.Dangerous, "위험")
         RiskLevel.UNKNOWN -> Triple(TextSecondary, Icons.Default.Help, "미분석")
     }
+    
+    // 다크모드용 권장 사항 배경색 - 어두운 톤으로 변경
+    val recommendationBgColor = when (result.riskLevel) {
+        RiskLevel.SAFE -> if (isDark) SafeGreenDark else SafeGreenLight
+        RiskLevel.CAUTION -> if (isDark) WarningYellowDark else WarningYellowLight
+        RiskLevel.DANGER -> if (isDark) DangerRedDark else DangerRedLight
+        RiskLevel.UNKNOWN -> MaterialTheme.colorScheme.surface
+    }
+    
+    // 다크모드용 텍스트 색상
+    val recommendationTextColor = if (isDark) Color.White else MaterialTheme.colorScheme.onSurface
+    val recommendationLabelColor = if (isDark) Color.White.copy(alpha = 0.7f) else MaterialTheme.colorScheme.onSurfaceVariant
     
     Card(
         modifier = modifier.fillMaxWidth(),
@@ -310,41 +335,47 @@ fun AnalysisResultCard(result: AnalysisResult, modifier: Modifier = Modifier) {
             }
         }
         
+        // 권장 사항 영역 - 다크모드 지원
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.surface)
+                .background(recommendationBgColor)
                 .padding(20.dp)
         ) {
             Text(
                 text = "권장 사항",
                 style = MaterialTheme.typography.titleSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = recommendationLabelColor
             )
             Spacer(Modifier.height(8.dp))
             Text(
                 text = result.recommendation,
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurface
+                color = recommendationTextColor
             )
             
             result.details?.let { details ->
                 Spacer(Modifier.height(16.dp))
-                HorizontalDivider()
+                HorizontalDivider(color = if (isDark) Color.White.copy(alpha = 0.2f) else MaterialTheme.colorScheme.outline)
                 Spacer(Modifier.height(16.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    DetailChip("로컬 ML", "${(details.localMlScore * 100).toInt()}%")
-                    DetailChip("악성 탐지", "${details.virusTotalMalicious}개")
-                    DetailChip("의심 탐지", "${details.virusTotalSuspicious}개")
+                    DetailChip("로컬 ML", "${(details.localMlScore * 100).toInt()}%", isDark)
+                    DetailChip("악성 탐지", "${details.virusTotalMalicious}개", isDark)
+                    DetailChip("의심 탐지", "${details.virusTotalSuspicious}개", isDark)
                 }
                 
                 details.aiExplanation?.let { explanation ->
                     Spacer(Modifier.height(16.dp))
                     Card(
-                        colors = CardDefaults.cardColors(containerColor = PrimaryLight.copy(alpha = 0.3f)),
+                        colors = CardDefaults.cardColors(
+                            containerColor = if (isDark) 
+                                Primary.copy(alpha = 0.2f) 
+                            else 
+                                PrimaryLight.copy(alpha = 0.3f)
+                        ),
                         shape = RoundedCornerShape(8.dp)
                     ) {
                         Row(
@@ -355,20 +386,20 @@ fun AnalysisResultCard(result: AnalysisResult, modifier: Modifier = Modifier) {
                                 imageVector = Icons.Default.AutoAwesome,
                                 contentDescription = null,
                                 modifier = Modifier.size(20.dp),
-                                tint = Primary
+                                tint = if (isDark) PrimaryLight else Primary
                             )
                             Spacer(Modifier.width(8.dp))
                             Column {
                                 Text(
                                     text = "AI 분석",
                                     style = MaterialTheme.typography.labelMedium,
-                                    color = Primary
+                                    color = if (isDark) PrimaryLight else Primary
                                 )
                                 Spacer(Modifier.height(4.dp))
                                 Text(
                                     text = explanation,
                                     style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurface
+                                    color = recommendationTextColor
                                 )
                             }
                         }
@@ -380,27 +411,31 @@ fun AnalysisResultCard(result: AnalysisResult, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun DetailChip(label: String, value: String) {
+fun DetailChip(label: String, value: String, isDark: Boolean = false) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
             text = value,
             style = MaterialTheme.typography.titleMedium,
-            color = Primary
+            color = if (isDark) PrimaryLight else Primary
         )
         Text(
             text = label,
             style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = if (isDark) Color.White.copy(alpha = 0.7f) else MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }
 
 @Composable
 fun AnalysisErrorCard(message: String, modifier: Modifier = Modifier) {
+    val isDark = isDarkTheme()
+    val bgColor = if (isDark) DangerRedDark else DangerRedLight
+    val textColor = if (isDark) Color.White else MaterialTheme.colorScheme.onSurface
+    
     Card(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = DangerRedLight)
+        colors = CardDefaults.cardColors(containerColor = bgColor)
     ) {
         Row(
             modifier = Modifier.padding(20.dp),
@@ -410,20 +445,20 @@ fun AnalysisErrorCard(message: String, modifier: Modifier = Modifier) {
                 imageVector = Icons.Default.Error,
                 contentDescription = null,
                 modifier = Modifier.size(32.dp),
-                tint = DangerRed
+                tint = if (isDark) Color(0xFFFF6B6B) else DangerRed
             )
             Spacer(Modifier.width(16.dp))
             Column {
                 Text(
                     text = "분석 실패",
                     style = MaterialTheme.typography.titleMedium,
-                    color = DangerRed
+                    color = if (isDark) Color(0xFFFF6B6B) else DangerRed
                 )
                 Spacer(Modifier.height(4.dp))
                 Text(
                     text = message,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = textColor
                 )
             }
         }

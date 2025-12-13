@@ -4,6 +4,8 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     // Firebase
     id("com.google.gms.google-services")
+    // Room - KSP
+    id("com.google.devtools.ksp") version "2.0.21-1.0.27"
 }
 
 android {
@@ -74,6 +76,9 @@ dependencies {
     implementation("com.google.firebase:firebase-auth-ktx")
     implementation("com.google.firebase:firebase-storage-ktx")
 
+    // ============ Google Sign-In ============
+    implementation("com.google.android.gms:play-services-auth:20.7.0")
+
     // ============ Jetpack Compose ============
     val composeBom = platform("androidx.compose:compose-bom:2024.02.00")
     implementation(composeBom)
@@ -125,6 +130,12 @@ dependencies {
 
     // ============ DataStore ============
     implementation("androidx.datastore:datastore-preferences:1.0.0")
+
+    // ============ Room Database ============
+    val roomVersion = "2.6.1"
+    implementation("androidx.room:room-runtime:$roomVersion")
+    implementation("androidx.room:room-ktx:$roomVersion")
+    ksp("androidx.room:room-compiler:$roomVersion")
 
     // ============ Test ============
     testImplementation(libs.junit)

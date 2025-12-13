@@ -145,13 +145,21 @@ data class AIAnalysisInput(
 )
 
 /**
- * 응답: POST /getAIAnalysis
+ * 응답: POST /getAIAnalysis (상세 분석 버전)
  * 백엔드 응답 구조와 일치
  */
 data class GetAIAnalysisResponse(
     val url: String?,
     val aiInsight: String?,
     val riskSummary: String?,
+
+    // 🆕 상세 피싱 분석 필드
+    val phishingType: String?,              // 피싱 유형 (예: "계정탈취", "금융사칭")
+    val phishingTechniques: List<String>?,  // 사용된 피싱 기법
+    val targetedBrand: String?,             // 사칭 대상 브랜드 (예: "네이버", "카카오")
+    val technicalAnalysis: String?,         // 기술적 분석
+    val attackScenario: String?,            // 예상 공격 시나리오
+
     val riskFactors: List<String>?,
     val recommendations: List<String>?,
     val analysisScore: Double?,

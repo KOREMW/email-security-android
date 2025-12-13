@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__ide__getDiagnostics",
+      "Bash(./gradlew assembleDebug:*)",
+      "Bash(./gradlew.bat:*)",
+      "Bash(tree:*)",
+      "Bash(firebase deploy:*)"
+    ]
+  }
+}

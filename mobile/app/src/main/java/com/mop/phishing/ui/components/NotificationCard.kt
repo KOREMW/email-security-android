@@ -35,7 +35,16 @@ data class NotificationItem(
     val timeAgo: String,
     val riskLevel: RiskLevel,
     val riskScore: Int = 0,
-    val isAnalyzed: Boolean = false
+    val isAnalyzed: Boolean = false,
+    // 상세 분석 결과 (DB에서 로드)
+    val localMlScore: Float = 0f,
+    val virusTotalMalicious: Int = 0,
+    val virusTotalSuspicious: Int = 0,
+    val virusTotalTotal: Int = 0,
+    val finalScore: Int = 0,
+    val aiExplanation: String? = null,
+    val recommendation: String? = null,
+    val canAccess: Boolean = true
 )
 
 @Composable

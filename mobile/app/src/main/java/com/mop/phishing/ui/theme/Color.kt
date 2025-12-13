@@ -12,10 +12,16 @@ val PrimaryGradientEnd = Color(0xFF4DB6E5)
 // Status Colors
 val SafeGreen = Color(0xFF4CAF50)
 val SafeGreenLight = Color(0xFFE8F5E9)
+val SafeGreenDark = Color(0xFF0D1F10)  // 다크모드용 매우 어두운 초록
+val SafeGreenMuted = Color(0xFF2E7D32)  // 다크모드용 채도 낮은 초록
 val WarningYellow = Color(0xFFFF9800)
 val WarningYellowLight = Color(0xFFFFF3E0)
+val WarningYellowDark = Color(0xFF1F1A05)  // 다크모드용 매우 어두운 노랑
+val WarningYellowMuted = Color(0xFFE65100)  // 다크모드용 채도 낮은 노랑
 val DangerRed = Color(0xFFE53935)
 val DangerRedLight = Color(0xFFFFEBEE)
+val DangerRedDark = Color(0xFF1A0A0A)  // 다크모드용 매우 어두운 빨강
+val DangerRedMuted = Color(0xFFC62828)  // 다크모드용 채도 낮은 빨강
 
 // Background Colors
 val BackgroundLight = Color(0xFFF5F7FA)

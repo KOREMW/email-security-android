@@ -91,6 +91,7 @@ fun SettingsToggleItem(
 fun SettingsNavigationItem(
     title: String,
     value: String? = null,
+    description: String? = null,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -101,12 +102,20 @@ fun SettingsNavigationItem(
             .padding(vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.weight(1f)
-        )
+        Column(Modifier.weight(1f)) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            if (description != null) {
+                Text(
+                    text = description,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        }
         if (value != null) {
             Text(
                 text = value,
@@ -128,7 +137,9 @@ fun SettingsNavigationItem(
 fun ProfileCard(
     userName: String,
     userEmail: String,
-    onEditClick: () -> Unit,
+    isLoggedIn: Boolean = false,
+    onLogoutClick: () -> Unit,
+    onLoginClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -169,11 +180,22 @@ fun ProfileCard(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            OutlinedButton(
-                onClick = onEditClick,
-                shape = RoundedCornerShape(8.dp)
-            ) {
-                Text("프로필 수정")
+            if (isLoggedIn) {
+                OutlinedButton(
+                    onClick = onLogoutClick,
+                    shape = RoundedCornerShape(8.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = DangerRed)
+                ) {
+                    Text("로그아웃")
+                }
+            } else {
+                Button(
+                    onClick = { onLoginClick?.invoke() },
+                    shape = RoundedCornerShape(8.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Primary)
+                ) {
+                    Text("Google 로그인", color = Color.White)
+                }
             }
         }
     }

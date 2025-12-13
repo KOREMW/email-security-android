@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#CC000000">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginHorizontal="24dp"
+        android:background="@drawable/bg_overlay_card"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <!-- 경고 아이콘 -->
+        <ImageView
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_warning_large"
+            android:contentDescription="경고" />
+
+        <!-- 제목 -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="16dp"
+            android:text="⚠️ 위험한 사이트 차단됨"
+            android:textColor="#FF1744"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <!-- 설명 -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="12dp"
+            android:gravity="center"
+            android:text="이 사이트는 피싱 또는 악성 사이트로\n탐지되어 차단되었습니다."
+            android:textColor="#FFFFFF"
+            android:textSize="14sp" />
+
+        <!-- 구분선 -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginVertical="16dp"
+            android:background="#33FFFFFF" />
+
+        <!-- 도메인 -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="차단된 도메인"
+            android:textColor="#AAAAAA"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/tvBlockedDomain"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="4dp"
+            android:text="example.com"
+            android:textColor="#FF6B6B"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <!-- URL -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="12dp"
+            android:text="전체 URL"
+            android:textColor="#AAAAAA"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/tvBlockedUrl"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="4dp"
+            android:background="#1AFFFFFF"
+            android:ellipsize="middle"
+            android:gravity="center"
+            android:maxLines="2"
+            android:padding="8dp"
+            android:text="https://example.com/login"
+            android:textColor="#CCCCCC"
+            android:textSize="12sp" />
+
+        <!-- 경고 메시지 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="#1AFF1744"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🚨 주의사항"
+                android:textColor="#FF6B6B"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="• 개인정보를 입력하지 마세요\n• 파일을 다운로드하지 마세요\n• 금융 정보를 입력하지 마세요"
+                android:textColor="#CCCCCC"
+                android:textSize="11sp" />
+
+        </LinearLayout>
+
+        <!-- 버튼들 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:orientation="horizontal">
+
+            <!-- 뒤로가기 버튼 (권장) -->
+            <Button
+                android:id="@+id/btnGoBack"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/bg_button_safe"
+                android:text="🔙 뒤로가기"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <!-- 위험 감수 버튼 -->
+            <Button
+                android:id="@+id/btnProceed"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/bg_button_danger"
+                android:text="위험 감수"
+                android:textColor="#FF6B6B"
+                android:textSize="14sp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</FrameLayout>

@@ -84,6 +84,43 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+/**
+ * 재시도 로직이 포함된 API 호출 함수
+ * @param {Function} fn - 실행할 함수
+ * @param {number} maxRetries - 최대 재시도 횟수 (기본: 3)
+ * @param {number} baseDelay - 기본 지연 시간 ms (기본: 1000)
+ * @returns {Promise} 함수 실행 결과
+ */
+async function retryWithBackoff(fn, maxRetries = 3, baseDelay = 1000) {
+  let lastError;
+
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      return await fn();
+    } catch (error) {
+      lastError = error;
+
+      // 재시도하지 않을 에러 유형
+      const noRetryStatuses = [400, 401, 403, 404];
+      if (error.response && noRetryStatuses.includes(error.response.status)) {
+        throw error;
+      }
+
+      // 마지막 시도면 에러 던지기
+      if (attempt === maxRetries) {
+        throw error;
+      }
+
+      // 지수 백오프 (1초, 2초, 4초...)
+      const delay = baseDelay * Math.pow(2, attempt - 1);
+      console.log(`[Retry] 시도 ${attempt}/${maxRetries} 실패, ${delay}ms 후 재시도...`);
+      await sleep(delay);
+    }
+  }
+
+  throw lastError;
+}
+
 // ============================================
 // 1️⃣ 핵심 API: 의심 URL 분석
 // POST /analyzeSuspiciousUrl
@@ -386,54 +423,47 @@ exports.getAIAnalysis = functions
 
       logger.info('AI 보고서 생성 시작', { url, apiKeyMasked: maskApiKey(openaiApiKey) });
 
-      // OpenAI API 호출
+      // OpenAI API 호출 (재시도 로직 포함)
       const prompt = generateAIPrompt(url, analysisResult);
       const openaiStartTime = Date.now();
-      
+
       let openaiResponse;
       try {
-        openaiResponse = await axios.post(
-          'https://api.openai.com/v1/chat/completions',
-          {
-            model: 'gpt-4o-mini',
-            messages: [
-              {
-                role: 'system',
-                content: `당신은 사이버 보안 전문가입니다. URL 분석 결과를 바탕으로 사용자에게 이해하기 쉬운 보안 보고서를 작성해주세요.
-
-응답 형식 (JSON):
-{
-  "riskSummary": "한 줄 요약",
-  "riskFactors": ["위험 요소 1", "위험 요소 2"],
-  "recommendations": ["권장 행동 1", "권장 행동 2", "권장 행동 3"],
-  "details": "상세 설명 (2-3문장)"
-}
-
-반드시 위 JSON 형식으로만 응답하세요.`
-              },
-              { role: 'user', content: prompt }
-            ],
-            max_tokens: 500,
-            temperature: 0.3
-          },
-          {
-            headers: {
-              'Authorization': `Bearer ${openaiApiKey}`,
-              'Content-Type': 'application/json'
+        openaiResponse = await retryWithBackoff(async () => {
+          return await axios.post(
+            'https://api.openai.com/v1/chat/completions',
+            {
+              model: 'gpt-4o-mini',
+              messages: [
+                {
+                  role: 'system',
+                  content: ENHANCED_SYSTEM_PROMPT
+                },
+                { role: 'user', content: prompt }
+              ],
+              max_tokens: 1000,
+              temperature: 0.3
             },
-            timeout: 25000
-          }
-        );
-        
-        logger.info('OpenAI API 호출 성공', { 
+            {
+              headers: {
+                'Authorization': `Bearer ${openaiApiKey}`,
+                'Content-Type': 'application/json'
+              },
+              timeout: 25000
+            }
+          );
+        }, 3, 1000);  // 최대 3회 재시도, 1초 기본 지연
+
+        logger.info('OpenAI API 호출 성공', {
           duration: Date.now() - openaiStartTime,
           model: 'gpt-4o-mini'
         });
       } catch (openaiError) {
-        logger.error('OpenAI API 호출 실패', openaiError, {
+        logger.error('OpenAI API 호출 실패 (재시도 후)', openaiError, {
           status: openaiError.response?.status,
           statusText: openaiError.response?.statusText,
-          duration: Date.now() - openaiStartTime
+          duration: Date.now() - openaiStartTime,
+          retries: 3
         });
 
         if (openaiError.response?.status === 429) {
@@ -481,6 +511,14 @@ exports.getAIAnalysis = functions
         url: url,
         aiInsight: aiReport.details || aiReport.riskSummary,
         riskSummary: aiReport.riskSummary,
+
+        // 🆕 새로 추가된 상세 분석 필드
+        phishingType: aiReport.phishingType || null,
+        phishingTechniques: aiReport.phishingTechniques || [],
+        targetedBrand: aiReport.targetedBrand || null,
+        technicalAnalysis: aiReport.technicalAnalysis || null,
+        attackScenario: aiReport.attackScenario || null,
+
         riskFactors: aiReport.riskFactors || [],
         recommendations: aiReport.recommendations || [],
         analysisScore: analysisResult.finalRiskScore || 0,
@@ -1082,25 +1120,124 @@ exports.getErrorLogs = functions
   });
 
 // ============================================
-// OpenAI 프롬프트 생성 함수
+// OpenAI 프롬프트 생성 함수 (상세 분석 버전)
 // ============================================
 
 function generateAIPrompt(url, analysisResult) {
   const score = analysisResult.finalRiskScore || 0;
   const level = analysisResult.suspiciousLevel || 'UNKNOWN';
   const vt = analysisResult.virusTotal || {};
-  
+
+  // URL에서 추가 정보 추출
+  let urlInfo = {};
+  try {
+    const parsedUrl = new URL(url);
+    urlInfo = {
+      domain: parsedUrl.hostname,
+      path: parsedUrl.pathname,
+      hasHttps: parsedUrl.protocol === 'https:',
+      hasPort: parsedUrl.port ? true : false,
+      queryParams: parsedUrl.search ? parsedUrl.search.split('&').length : 0
+    };
+  } catch (e) {
+    urlInfo = { domain: url, path: '', hasHttps: false };
+  }
+
+  // 의심 키워드 탐지
+  const suspiciousKeywords = ['login', 'verify', 'account', 'secure', 'update', 'confirm',
+    'password', 'banking', 'paypal', 'amazon', 'apple', 'microsoft', 'google',
+    'facebook', 'netflix', 'wallet', 'suspend', 'urgent', 'alert', 'naver', 'kakao', 'daum'];
+  const foundKeywords = suspiciousKeywords.filter(kw => url.toLowerCase().includes(kw));
+
+  // 의심 TLD 탐지
+  const suspiciousTlds = ['.tk', '.ml', '.ga', '.cf', '.gq', '.xyz', '.top', '.click', '.link', '.work', '.site'];
+  const hasSuspiciousTld = suspiciousTlds.some(tld => urlInfo.domain?.endsWith(tld));
+
   return `
-다음 URL의 보안 분석 결과입니다:
+다음 URL의 보안 분석 결과를 상세히 분석해주세요:
 
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📌 분석 대상 URL
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 URL: ${url}
-위험도 점수: ${(score * 100).toFixed(1)}점 (100점 만점)
-위험 등급: ${level}
-VirusTotal 결과:
-- 악성 판정: ${vt.malicious || 0}개 보안 엔진
-- 정상 판정: ${vt.harmless || 0}개 보안 엔진
-- 미탐지: ${vt.undetected || 0}개 보안 엔진
+도메인: ${urlInfo.domain}
+경로: ${urlInfo.path || '/'}
+HTTPS 사용: ${urlInfo.hasHttps ? '예' : '아니오'}
+비표준 포트 사용: ${urlInfo.hasPort ? '예' : '아니오'}
 
-위 정보를 바탕으로 일반 사용자가 이해할 수 있는 보안 보고서를 JSON 형식으로 작성해주세요.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📊 보안 분석 결과
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+위험도 점수: ${(score * 100).toFixed(1)}점 / 100점
+위험 등급: ${level}
+
+VirusTotal 검사 결과:
+- 🔴 악성 판정: ${vt.malicious || 0}개 엔진
+- 🟡 의심 판정: ${vt.suspicious || 0}개 엔진
+- 🟢 정상 판정: ${vt.harmless || 0}개 엔진
+- ⚪ 미탐지: ${vt.undetected || 0}개 엔진
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔍 추가 탐지 정보
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+발견된 의심 키워드: ${foundKeywords.length > 0 ? foundKeywords.join(', ') : '없음'}
+의심스러운 TLD 사용: ${hasSuspiciousTld ? '예' : '아니오'}
+
+위 정보를 바탕으로 상세한 보안 분석 보고서를 작성해주세요.
 `;
 }
+
+// ============================================
+// 상세 시스템 프롬프트
+// ============================================
+
+const ENHANCED_SYSTEM_PROMPT = `당신은 10년 경력의 사이버 보안 전문가입니다. URL 분석 결과를 바탕으로 일반 사용자가 이해하기 쉬운 상세 보안 보고서를 작성합니다.
+
+다음 피싱 유형들을 정확히 구분하여 분석하세요:
+
+【피싱 유형 분류】
+1. 금융사칭 (Banking Phishing): 은행, 카드사, 증권사 사칭
+2. 계정탈취 (Credential Theft): 로그인 페이지 위장, 계정 정보 탈취
+3. 배송사칭 (Delivery Scam): 택배, 우편 배송 관련 사칭
+4. 기업사칭 (Brand Impersonation): 대기업(네이버, 카카오, 애플, 구글 등) 사칭
+5. 정부기관사칭 (Government Impersonation): 국세청, 경찰청, 법원 등 사칭
+6. 이벤트/당첨사기 (Prize Scam): 경품, 이벤트 당첨 사칭
+7. 기술지원사기 (Tech Support Scam): 바이러스 감염, 기술 문제 사칭
+8. 투자사기 (Investment Scam): 가상화폐, 주식 투자 유도
+9. 로맨스스캠 (Romance Scam): 연애/만남 관련 사기
+10. 기타 악성링크 (Malicious Link): 악성코드 배포, 드라이브바이 다운로드
+
+【피싱 기법 분석】
+- 타이포스쿼팅 (Typosquatting): 도메인 오타 이용 (예: go0gle.com)
+- 호모그래프 공격 (Homograph): 유사 문자 사용 (예: аpple.com - 키릴 문자)
+- 서브도메인 위장: 정상 도메인을 서브도메인처럼 사용 (예: google.com.malicious.site)
+- URL 단축: bit.ly 등으로 실제 URL 숨김
+- 파라미터 조작: 쿼리 파라미터로 악성 데이터 전달
+- HTTPS 악용: SSL 인증서로 신뢰감 위장
+
+반드시 아래 JSON 형식으로만 응답하세요:
+
+{
+  "riskSummary": "한 줄 핵심 요약 (예: 네이버 로그인 페이지를 사칭한 계정탈취 피싱 사이트입니다)",
+  "phishingType": "피싱 유형 (위 10가지 중 하나 또는 '정상 사이트')",
+  "phishingTechniques": ["사용된 피싱 기법 1", "사용된 피싱 기법 2"],
+  "targetedBrand": "사칭 대상 브랜드 (없으면 null)",
+  "riskFactors": [
+    "구체적 위험 요소 1 (예: 'naver' 키워드를 포함하지만 실제 네이버 도메인이 아님)",
+    "구체적 위험 요소 2",
+    "구체적 위험 요소 3"
+  ],
+  "technicalAnalysis": "기술적 분석 (URL 구조, 도메인 특성, 인증서 상태 등 2-3문장)",
+  "attackScenario": "예상 공격 시나리오 (예: 사용자가 로그인하면 입력한 ID/비밀번호가 공격자에게 전송됩니다)",
+  "recommendations": [
+    "구체적인 권장 행동 1",
+    "구체적인 권장 행동 2",
+    "구체적인 권장 행동 3"
+  ],
+  "details": "상세 설명 (3-4문장으로 종합 분석)"
+}
+
+주의사항:
+- 정상 사이트인 경우에도 왜 정상인지 근거를 제시하세요
+- 기술 용어는 괄호 안에 쉬운 설명을 추가하세요
+- 사용자가 실제로 취해야 할 행동을 구체적으로 안내하세요`;
