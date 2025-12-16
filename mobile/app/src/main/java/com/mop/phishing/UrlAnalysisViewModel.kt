@@ -24,6 +24,7 @@ class UrlAnalysisViewModel(application: Application) : AndroidViewModel(applicat
 
     companion object {
         private const val TAG = "UrlAnalysisVM"
+<<<<<<< HEAD
         
         // 🚨 빌드 확인용 - 이 값이 Logcat에 보이면 새 APK가 설치된 것
         private const val BUILD_ID = "2025-12-16-FIX-V3"
@@ -43,12 +44,15 @@ class UrlAnalysisViewModel(application: Application) : AndroidViewModel(applicat
             // 프로토콜이 없으면 https:// 추가
             return "https://$trimmed"
         }
+=======
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
     }
 
     // ============================================================
     // State
     // ============================================================
 
+<<<<<<< HEAD
     private val _analysisState = MutableStateFlow<AnalysisState>(AnalysisState.Loading)
     val analysisState: StateFlow<AnalysisState> = _analysisState.asStateFlow()
 
@@ -87,6 +91,45 @@ class UrlAnalysisViewModel(application: Application) : AndroidViewModel(applicat
         null
     }
 
+=======
+    // 분석 상태
+    private val _analysisState = MutableStateFlow<AnalysisState>(AnalysisState.Loading)
+    val analysisState: StateFlow<AnalysisState> = _analysisState.asStateFlow()
+
+    // 로딩 상태
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+
+    // 에러 메시지
+    private val _errorMessage = MutableStateFlow<String?>(null)
+    val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
+
+    // 서버 응답 원본 (디버깅/상세 정보용)
+    private val _serverResponse = MutableStateFlow<AnalyzeSuspiciousUrlResponse?>(null)
+    val serverResponse: StateFlow<AnalyzeSuspiciousUrlResponse?> = _serverResponse.asStateFlow()
+
+    // AI 분석 응답
+    private val _aiResponse = MutableStateFlow<GetAIAnalysisResponse?>(null)
+    val aiResponse: StateFlow<GetAIAnalysisResponse?> = _aiResponse.asStateFlow()
+
+    // 로컬 ML 점수
+    private val _localScore = MutableStateFlow(0f)
+    val localScore: StateFlow<Float> = _localScore.asStateFlow()
+
+    // 캐시에서 로드되었는지 여부
+    private val _isFromCache = MutableStateFlow(false)
+    val isFromCache: StateFlow<Boolean> = _isFromCache.asStateFlow()
+
+    // ML 분류기 (싱글톤 사용)
+    private val classifier: UrlClassifier? = try {
+        UrlClassifier.getInstance(application.applicationContext)
+    } catch (e: Exception) {
+        Log.e(TAG, "UrlClassifier 초기화 실패: ${e.message}")
+        null
+    }
+
+    // 알림 Repository (캐싱용)
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
     private val notificationRepository = NotificationRepository.getInstance(application.applicationContext)
 
     // ============================================================
@@ -95,6 +138,10 @@ class UrlAnalysisViewModel(application: Application) : AndroidViewModel(applicat
 
     /**
      * 알림 ID로 분석 실행 (캐시 확인 포함)
+<<<<<<< HEAD
+=======
+     * 이미 분석된 알림이면 캐시된 결과를 바로 반환
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
      */
     fun analyzeNotification(
         notificationId: String,
@@ -116,6 +163,10 @@ class UrlAnalysisViewModel(application: Application) : AndroidViewModel(applicat
                         Log.d(TAG, "캐시된 분석 결과 사용: id=$notificationId")
                         _isFromCache.value = true
                         
+<<<<<<< HEAD
+=======
+                        // 캐시된 결과를 AnalysisResult로 변환
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
                         val analysisResult = AnalysisResult(
                             riskLevel = RiskLevel.valueOf(cachedResult.riskLevel),
                             riskScore = cachedResult.riskScore,
@@ -136,8 +187,11 @@ class UrlAnalysisViewModel(application: Application) : AndroidViewModel(applicat
                         _isLoading.value = false
                         return@launch
                     }
+<<<<<<< HEAD
                 } else {
                     Log.d(TAG, "🔄 전체 재분석 시작: id=$notificationId, url=$url")
+=======
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
                 }
 
                 // Step 2: 새 분석 실행
@@ -156,16 +210,27 @@ class UrlAnalysisViewModel(application: Application) : AndroidViewModel(applicat
     }
 
     /**
+<<<<<<< HEAD
      * URL 전체 분석 실행 (수동 입력 / QR 스캔용)
      *
      * @param forceRefresh true이면 서버 캐시를 무시하고 강제 재분석
+=======
+     * URL 전체 분석 실행 (수동 입력용)
+     * 1. 로컬 ML 분석
+     * 2. 서버 API 호출
+     * 3. (선택) AI 상세 분석
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
      */
     fun analyzeUrl(
         url: String,
         source: String = "manual",
         includeAIAnalysis: Boolean = true,
+<<<<<<< HEAD
         notificationId: String? = null,
         forceRefresh: Boolean = false
+=======
+        notificationId: String? = null
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
     ) {
         if (url.isBlank()) {
             _analysisState.value = AnalysisState.Error("URL을 입력하세요.")
@@ -179,7 +244,11 @@ class UrlAnalysisViewModel(application: Application) : AndroidViewModel(applicat
             _isFromCache.value = false
 
             try {
+<<<<<<< HEAD
                 performAnalysis(url, source, notificationId, includeAIAnalysis, forceRefresh)
+=======
+                performAnalysis(url, source, notificationId, includeAIAnalysis)
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
             } catch (e: Exception) {
                 Log.e(TAG, "분석 실패: ${e.message}", e)
                 _errorMessage.value = e.message
@@ -199,6 +268,7 @@ class UrlAnalysisViewModel(application: Application) : AndroidViewModel(applicat
         url: String,
         source: String,
         notificationId: String?,
+<<<<<<< HEAD
         includeAIAnalysis: Boolean = true,
         forceRefresh: Boolean = false
     ) {
@@ -246,6 +316,39 @@ class UrlAnalysisViewModel(application: Application) : AndroidViewModel(applicat
         val analysisResult = ResponseMapper.mapToAnalysisResult(response, aiAnalysisResponse, localRiskScore)
         _analysisState.value = AnalysisState.Completed(analysisResult)
         Log.d(TAG, "✅ 분석 완료: riskLevel=${analysisResult.riskLevel}, riskScore=${analysisResult.riskScore}, localMlScore=${localRiskScore}")
+=======
+        includeAIAnalysis: Boolean = true
+    ) {
+        // Step 1: 로컬 ML 분석
+        val localRiskScore = runLocalAnalysis(url)
+        _localScore.value = localRiskScore
+        Log.d(TAG, "로컬 ML 점수: $localRiskScore")
+
+        // Step 2: 서버 API 호출
+        val response = CloudFunctionRepository.analyzeSuspiciousUrl(
+            url = url,
+            source = source,
+            localRiskScore = localRiskScore.toDouble()
+        )
+        _serverResponse.value = response
+        Log.d(TAG, "서버 응답: suspicious=${response.suspicious}, score=${response.finalRiskScore}, level=${response.suspiciousLevel}")
+
+        // Step 3: AI 분석 (모든 URL에 대해 요청)
+        var aiAnalysisResponse: GetAIAnalysisResponse? = null
+        if (includeAIAnalysis && shouldRequestAIAnalysis(response)) {
+            try {
+                aiAnalysisResponse = CloudFunctionRepository.getAIAnalysis(url, response)
+                _aiResponse.value = aiAnalysisResponse
+                Log.d(TAG, "AI 분석 완료: ${aiAnalysisResponse.riskSummary}")
+            } catch (aiError: Exception) {
+                Log.w(TAG, "AI 분석 실패 (무시): ${aiError.message}")
+            }
+        }
+
+        // Step 4: UI 모델로 변환
+        val analysisResult = ResponseMapper.mapToAnalysisResult(response, aiAnalysisResponse)
+        _analysisState.value = AnalysisState.Completed(analysisResult)
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
 
         // Step 5: DB에 결과 저장 (notificationId가 있는 경우)
         if (notificationId != null) {
@@ -263,6 +366,10 @@ class UrlAnalysisViewModel(application: Application) : AndroidViewModel(applicat
         aiResponse: GetAIAnalysisResponse?
     ) {
         try {
+<<<<<<< HEAD
+=======
+            // VirusTotal 전체 엔진 수 계산
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
             val vtTotal = response.breakdown?.virusTotalStats?.total
                 ?: ((response.virusTotal?.malicious ?: 0) +
                     (response.virusTotal?.harmless ?: 0) +
@@ -292,7 +399,11 @@ class UrlAnalysisViewModel(application: Application) : AndroidViewModel(applicat
      * 로컬 ML 분석만 실행
      */
     fun runLocalAnalysisOnly(url: String): Float {
+<<<<<<< HEAD
         val score = runLocalAnalysis(normalizeUrl(url))
+=======
+        val score = runLocalAnalysis(url)
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
         _localScore.value = score
         return score
     }
@@ -320,6 +431,7 @@ class UrlAnalysisViewModel(application: Application) : AndroidViewModel(applicat
     // Private Methods
     // ============================================================
 
+<<<<<<< HEAD
     private fun runLocalAnalysis(url: String): Float {
         Log.w(TAG, "══════════ runLocalAnalysis 시작 (BUILD: $BUILD_ID) ══════════")
         Log.w(TAG, "│ URL: $url")
@@ -340,14 +452,42 @@ class UrlAnalysisViewModel(application: Application) : AndroidViewModel(applicat
         } catch (e: Exception) {
             Log.e(TAG, "│ ❌ predict() 실패: ${e.message}", e)
             Log.w(TAG, "══════════ runLocalAnalysis 종료 (EXCEPTION) ══════════")
+=======
+    /**
+     * 로컬 TFLite 모델로 분석
+     */
+    private fun runLocalAnalysis(url: String): Float {
+        return try {
+            classifier?.predict(url) ?: 0.5f
+        } catch (e: Exception) {
+            Log.w(TAG, "로컬 분석 실패, 기본값 사용: ${e.message}")
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
             0.5f
         }
     }
 
+<<<<<<< HEAD
     private fun shouldRequestAIAnalysis(response: AnalyzeSuspiciousUrlResponse): Boolean {
         return true  // 모든 URL에 대해 AI 분석 수행
     }
 
+=======
+    /**
+     * AI 분석 요청 여부 결정
+     * 모든 URL에 대해 AI 분석 요청 (사용자에게 상세 정보 제공)
+     */
+    private fun shouldRequestAIAnalysis(response: AnalyzeSuspiciousUrlResponse): Boolean {
+        // 모든 URL에 대해 AI 분석 수행 (SAFE 포함)
+        // 비용 절감이 필요하면 아래 조건으로 변경:
+        // val level = response.suspiciousLevel.uppercase()
+        // return response.suspicious || level in listOf("SUSPICIOUS", "DANGEROUS")
+        return true
+    }
+
+    /**
+     * 기본 권장 사항 반환
+     */
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
     private fun getDefaultRecommendation(riskLevel: RiskLevel): String {
         return when (riskLevel) {
             RiskLevel.SAFE -> "안전한 링크입니다. 정상적으로 접속하셔도 됩니다."
@@ -359,5 +499,9 @@ class UrlAnalysisViewModel(application: Application) : AndroidViewModel(applicat
 
     override fun onCleared() {
         super.onCleared()
+<<<<<<< HEAD
+=======
+        // 싱글톤이므로 여기서 close하지 않음
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
     }
 }

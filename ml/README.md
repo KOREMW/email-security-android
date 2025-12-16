@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 피싱 URL 탐지 ML 모델 (v7)
 
 ## 빠른 시작
@@ -146,3 +147,6 @@ build_dataset(..., max_samples_per_class=20000)  # 기본값: 10000
 
 - Tranco 데이터: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
 - PhishTank 데이터: [Creative Commons](https://www.phishtank.com/developer_info.php)
+=======
+ 
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8

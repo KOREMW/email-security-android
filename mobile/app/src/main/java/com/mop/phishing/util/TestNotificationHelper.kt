@@ -66,6 +66,7 @@ object TestNotificationHelper {
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val notificationId = Random.nextInt(10000, 99999)
 
+<<<<<<< HEAD
         val (title, content) = when (scenario) {
             TestScenario.SAFE_EMAIL -> Pair(
                 "[Gmail] 회의 일정 안내",
@@ -78,6 +79,23 @@ object TestNotificationHelper {
             TestScenario.DANGEROUS_KAKAO -> Pair(
                 "카카오톡",
                 "[긴급] 계정이 해킹되었습니다. 지금 바로 확인하세요: ${DANGEROUS_URLS.random()}"
+=======
+        val (title, content, url) = when (scenario) {
+            TestScenario.SAFE_EMAIL -> Triple(
+                "[Gmail] 회의 일정 안내",
+                "내일 오후 2시 회의가 있습니다. 참석 링크: ${SAFE_URLS.random()}",
+                SAFE_URLS.random()
+            )
+            TestScenario.SUSPICIOUS_SMS -> Triple(
+                "[Web발신] 택배 배송 알림",
+                "고객님의 택배가 도착했습니다. 배송 확인: ${SUSPICIOUS_URLS.random()}",
+                SUSPICIOUS_URLS.random()
+            )
+            TestScenario.DANGEROUS_KAKAO -> Triple(
+                "카카오톡",
+                "[긴급] 계정이 해킹되었습니다. 지금 바로 확인하세요: ${DANGEROUS_URLS.random()}",
+                DANGEROUS_URLS.random()
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
             )
         }
 
@@ -147,15 +165,22 @@ object TestNotificationHelper {
             
             val localScore = classifier?.predict(url) ?: 0.5f
 
+<<<<<<< HEAD
             var riskLevel: com.mop.phishing.ui.components.RiskLevel = com.mop.phishing.ui.components.RiskLevel.UNKNOWN
+=======
+            var riskLevel = com.mop.phishing.ui.components.RiskLevel.UNKNOWN
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
             var riskScore = (localScore * 100).toInt()
             var vtMalicious = 0
             var vtSuspicious = 0
             var vtTotal = 0
             var finalScore = riskScore
+<<<<<<< HEAD
             var aiExplanation: String? = null
             var recommendationText: String? = null
             var canAccessUrl = true
+=======
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
 
             try {
                 val response = com.mop.phishing.data.remote.CloudFunctionRepository.analyzeSuspiciousUrl(
@@ -177,6 +202,7 @@ object TestNotificationHelper {
 
                 Log.d(TAG, "서버 분석 성공: url=$url, score=$riskScore, level=$riskLevel")
 
+<<<<<<< HEAD
                 // AI 분석 요청 추가
                 try {
                     Log.d(TAG, "AI 분석 요청 시작: url=$url")
@@ -195,6 +221,8 @@ object TestNotificationHelper {
                     canAccessUrl = riskLevel == com.mop.phishing.ui.components.RiskLevel.SAFE
                 }
 
+=======
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
             } catch (e: Exception) {
                 Log.w(TAG, "서버 분석 실패, 로컬 점수 사용: ${e.message}")
                 riskLevel = when {
@@ -202,8 +230,11 @@ object TestNotificationHelper {
                     localScore >= 0.4f -> com.mop.phishing.ui.components.RiskLevel.CAUTION
                     else -> com.mop.phishing.ui.components.RiskLevel.SAFE
                 }
+<<<<<<< HEAD
                 recommendationText = getDefaultRecommendation(riskLevel)
                 canAccessUrl = riskLevel == com.mop.phishing.ui.components.RiskLevel.SAFE
+=======
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
             }
 
             repository.updateAnalysisResult(
@@ -215,9 +246,13 @@ object TestNotificationHelper {
                 vtSuspicious = vtSuspicious,
                 vtTotal = vtTotal,
                 finalScore = finalScore,
+<<<<<<< HEAD
                 aiExplanation = aiExplanation,
                 recommendation = recommendationText,
                 canAccess = canAccessUrl
+=======
+                aiExplanation = null
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
             )
 
             Log.d(TAG, "테스트 분석 완료: id=$notificationId, score=$riskScore")
@@ -228,6 +263,7 @@ object TestNotificationHelper {
     }
 
     /**
+<<<<<<< HEAD
      * 기본 권장사항 반환
      */
     private fun getDefaultRecommendation(riskLevel: com.mop.phishing.ui.components.RiskLevel): String {
@@ -240,6 +276,8 @@ object TestNotificationHelper {
     }
 
     /**
+=======
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
      * 빠른 테스트 - 캐시 확인 후 분석 수행
      * NonCancellable 컨텍스트로 실행하여 화면 전환 시에도 취소되지 않음
      */

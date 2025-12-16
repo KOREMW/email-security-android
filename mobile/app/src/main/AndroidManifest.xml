@@ -14,9 +14,12 @@
     <!-- 오버레이 권한 (차단 화면 표시용) -->
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     
+<<<<<<< HEAD
     <!-- 진동 권한 -->
     <uses-permission android:name="android.permission.VIBRATE" />
     
+=======
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
     <!-- 포그라운드 서비스 권한 -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     

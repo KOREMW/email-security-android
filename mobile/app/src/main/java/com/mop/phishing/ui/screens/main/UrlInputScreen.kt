@@ -1,6 +1,9 @@
 package com.mop.phishing.ui.screens.main
 
+<<<<<<< HEAD
 import android.widget.Toast
+=======
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -21,7 +24,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalClipboardManager
+<<<<<<< HEAD
 import androidx.compose.ui.platform.LocalContext
+=======
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -33,7 +39,10 @@ import com.mop.phishing.ui.screens.detail.AnalysisDetails
 import com.mop.phishing.ui.screens.detail.AnalysisResult
 import com.mop.phishing.ui.screens.detail.AnalysisState
 import com.mop.phishing.ui.theme.*
+<<<<<<< HEAD
 import com.mop.phishing.util.UrlBlockManager
+=======
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
 
 /**
  * 현재 테마가 다크모드인지 확인하는 헬퍼 함수
@@ -51,13 +60,18 @@ fun UrlInputScreen(
     isLoading: Boolean,
     onBackClick: () -> Unit,
     onAnalyzeClick: (String) -> Unit,
+<<<<<<< HEAD
     onReanalyzeClick: (String) -> Unit = {},  // 🆕 재분석 콜백 (캐시 무시)
+=======
+    onQrScanClick: () -> Unit,
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
     modifier: Modifier = Modifier
 ) {
     var urlInput by remember { mutableStateOf("") }
     var urlError by remember { mutableStateOf<String?>(null) }
     val focusManager = LocalFocusManager.current
     val clipboardManager = LocalClipboardManager.current
+<<<<<<< HEAD
     val context = LocalContext.current
     
     // 차단 상태 추적
@@ -69,6 +83,8 @@ fun UrlInputScreen(
             UrlBlockManager.isBlocked(context, urlInput)
         } else false
     }
+=======
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
 
     Scaffold(
         topBar = {
@@ -102,9 +118,13 @@ fun UrlInputScreen(
                 colors = CardDefaults.cardColors(containerColor = PrimaryLight.copy(alpha = 0.3f))
             ) {
                 Column(
+<<<<<<< HEAD
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(20.dp),
+=======
+                    modifier = Modifier.padding(20.dp),
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Box(
@@ -125,17 +145,25 @@ fun UrlInputScreen(
                     Text(
                         text = "URL 안전성 검사",
                         style = MaterialTheme.typography.titleLarge,
+<<<<<<< HEAD
                         color = MaterialTheme.colorScheme.onSurface,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth()
+=======
+                        color = MaterialTheme.colorScheme.onSurface
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
                     )
                     Spacer(Modifier.height(4.dp))
                     Text(
                         text = "의심스러운 링크를 입력하면\nAI가 위험도를 분석해드립니다",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
+<<<<<<< HEAD
                         textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth()
+=======
+                        textAlign = TextAlign.Center
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
                     )
                 }
             }
@@ -188,8 +216,13 @@ fun UrlInputScreen(
                 ),
                 keyboardActions = KeyboardActions(onDone = {
                     focusManager.clearFocus()
+<<<<<<< HEAD
                     if (validateUrl(urlInput)) onAnalyzeClick(normalizeUrl(urlInput))
                     else urlError = "올바른 URL 형식이 아닙니다 (예: example.com)"
+=======
+                    if (validateUrl(urlInput)) onAnalyzeClick(urlInput)
+                    else urlError = "올바른 URL 형식이 아닙니다"
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
                 }),
                 shape = RoundedCornerShape(12.dp)
             )
@@ -199,6 +232,7 @@ fun UrlInputScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
+<<<<<<< HEAD
                 // 차단/차단해제 버튼
                 OutlinedButton(
                     onClick = {
@@ -226,17 +260,36 @@ fun UrlInputScreen(
                 ) {
                     Icon(
                         imageVector = if (isBlocked) Icons.Default.LockOpen else Icons.Default.Block,
+=======
+                OutlinedButton(
+                    onClick = onQrScanClick,
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(12.dp),
+                    contentPadding = PaddingValues(vertical = 16.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.QrCodeScanner,
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
                         contentDescription = null,
                         modifier = Modifier.size(20.dp)
                     )
                     Spacer(Modifier.width(8.dp))
+<<<<<<< HEAD
                     Text(if (isBlocked) "차단 해제" else "차단하기")
+=======
+                    Text("QR 스캔")
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
                 }
                 Button(
                     onClick = {
                         focusManager.clearFocus()
+<<<<<<< HEAD
                         if (validateUrl(urlInput)) onAnalyzeClick(normalizeUrl(urlInput))
                         else urlError = "올바른 URL 형식이 아닙니다 (예: example.com)"
+=======
+                        if (validateUrl(urlInput)) onAnalyzeClick(urlInput)
+                        else urlError = "올바른 URL 형식이 아닙니다"
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
                     },
                     modifier = Modifier.weight(1f),
                     enabled = urlInput.isNotBlank() && !isLoading,
@@ -265,11 +318,15 @@ fun UrlInputScreen(
             // 분석 결과 표시
             when (analysisState) {
                 is AnalysisState.Loading -> AnalysisLoadingCard()
+<<<<<<< HEAD
                 is AnalysisState.Completed -> AnalysisResultCard(
                     result = analysisState.result,
                     onReanalyzeClick = { onReanalyzeClick(normalizeUrl(urlInput)) },
                     isReanalyzing = isLoading
                 )
+=======
+                is AnalysisState.Completed -> AnalysisResultCard(analysisState.result)
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
                 is AnalysisState.Error -> AnalysisErrorCard(analysisState.message)
                 null -> UsageTipsCard()
             }
@@ -277,6 +334,7 @@ fun UrlInputScreen(
     }
 }
 
+<<<<<<< HEAD
 /**
  * URL 정규화: 프로토콜이 없으면 https://를 자동 추가
  */
@@ -302,6 +360,9 @@ private fun validateUrl(url: String): Boolean {
         false
     }
 }
+=======
+private fun validateUrl(url: String) = url.isNotBlank() && (url.startsWith("http://") || url.startsWith("https://"))
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
 
 @Composable
 fun AnalysisLoadingCard(modifier: Modifier = Modifier) {
@@ -336,12 +397,16 @@ fun AnalysisLoadingCard(modifier: Modifier = Modifier) {
 }
 
 @Composable
+<<<<<<< HEAD
 fun AnalysisResultCard(
     result: AnalysisResult,
     modifier: Modifier = Modifier,
     onReanalyzeClick: () -> Unit = {},
     isReanalyzing: Boolean = false
 ) {
+=======
+fun AnalysisResultCard(result: AnalysisResult, modifier: Modifier = Modifier) {
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
     // MaterialTheme 기반 다크모드 감지 (시스템 설정이 아닌 실제 테마)
     val isDark = isDarkTheme()
     
@@ -429,6 +494,7 @@ fun AnalysisResultCard(
                 Spacer(Modifier.height(16.dp))
                 HorizontalDivider(color = if (isDark) Color.White.copy(alpha = 0.2f) else MaterialTheme.colorScheme.outline)
                 Spacer(Modifier.height(16.dp))
+<<<<<<< HEAD
 
                 // 🆕 단축 URL 해제 결과 표시
                 details.expandedUrl?.let { expandedUrl ->
@@ -547,6 +613,17 @@ fun AnalysisResultCard(
                     }
                 }
 
+=======
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    DetailChip("로컬 ML", "${(details.localMlScore * 100).toInt()}%", isDark)
+                    DetailChip("악성 탐지", "${details.virusTotalMalicious}개", isDark)
+                    DetailChip("의심 탐지", "${details.virusTotalSuspicious}개", isDark)
+                }
+                
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
                 details.aiExplanation?.let { explanation ->
                     Spacer(Modifier.height(16.dp))
                     Card(
@@ -607,6 +684,7 @@ fun DetailChip(label: String, value: String, isDark: Boolean = false) {
 }
 
 @Composable
+<<<<<<< HEAD
 fun DetailChipWithColor(
     label: String,
     value: String,
@@ -628,6 +706,8 @@ fun DetailChipWithColor(
 }
 
 @Composable
+=======
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
 fun AnalysisErrorCard(message: String, modifier: Modifier = Modifier) {
     val isDark = isDarkTheme()
     val bgColor = if (isDark) DangerRedDark else DangerRedLight

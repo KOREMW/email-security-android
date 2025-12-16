@@ -12,12 +12,15 @@ android {
     namespace = "com.mop.phishing"
     compileSdk = 35
 
+<<<<<<< HEAD
     // Lint 에러를 경고로 변경 (빌드 성공을 위해)
     lint {
         abortOnError = false
         checkReleaseBuilds = false
     }
 
+=======
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
     defaultConfig {
         applicationId = "com.mop.phishing"
         minSdk = 24
@@ -64,6 +67,7 @@ android {
     }
 }
 
+<<<<<<< HEAD
 // 🔧 TFLite 버전 강제 지정 (의존성 충돌 해결)
 configurations.all {
     resolutionStrategy {
@@ -71,6 +75,8 @@ configurations.all {
     }
 }
 
+=======
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
 dependencies {
     // ============ AndroidX Core ============
     implementation(libs.androidx.core.ktx)
@@ -122,6 +128,7 @@ dependencies {
     implementation("androidx.camera:camera-view:$cameraxVersion")
 
     // ============ ML Kit Barcode Scanning ============
+<<<<<<< HEAD
     implementation("com.google.mlkit:barcode-scanning:17.2.0") {
         exclude(group = "org.tensorflow", module = "tensorflow-lite")
     }
@@ -129,6 +136,12 @@ dependencies {
     // ============ TensorFlow Lite ============
     // 🔧 v12 FULLY_CONNECTED op 지원을 위해 최신 버전 사용
     implementation("org.tensorflow:tensorflow-lite:2.17.0")
+=======
+    implementation("com.google.mlkit:barcode-scanning:17.2.0")
+
+    // ============ TensorFlow Lite ============
+    implementation("org.tensorflow:tensorflow-lite:2.14.0")
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
 
     // ============ Retrofit + OkHttp ============
     implementation("com.squareup.retrofit2:retrofit:2.9.0")

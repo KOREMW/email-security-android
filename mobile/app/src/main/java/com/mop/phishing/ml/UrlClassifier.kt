@@ -6,7 +6,10 @@ import org.tensorflow.lite.Interpreter
 import java.io.FileInputStream
 import java.nio.MappedByteBuffer
 import java.nio.channels.FileChannel
+<<<<<<< HEAD
 import kotlin.math.exp
+=======
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
 import kotlin.math.ln
 
 class UrlClassifier private constructor(context: Context) {
@@ -14,6 +17,7 @@ class UrlClassifier private constructor(context: Context) {
     companion object {
         private const val TAG = "UrlClassifier"
 
+<<<<<<< HEAD
         // 버전 정보 (디버깅용)
         const val VERSION = "v10.2-DEBUG"
 
@@ -22,6 +26,8 @@ class UrlClassifier private constructor(context: Context) {
         // Temperature < 1: 출력을 더 극단적으로
         private const val TEMPERATURE = 2.0f
 
+=======
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
         @Volatile
         private var INSTANCE: UrlClassifier? = null
 
@@ -33,12 +39,17 @@ class UrlClassifier private constructor(context: Context) {
             return INSTANCE ?: synchronized(this) {
                 INSTANCE ?: UrlClassifier(context.applicationContext).also {
                     INSTANCE = it
+<<<<<<< HEAD
                     Log.d(TAG, "UrlClassifier $VERSION 싱글톤 인스턴스 생성")
+=======
+                    Log.d(TAG, "UrlClassifier 싱글톤 인스턴스 생성")
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
                 }
             }
         }
 
         /**
+<<<<<<< HEAD
          * 강제로 인스턴스 재생성 (디버깅용)
          */
         fun forceResetInstance(context: Context): UrlClassifier {
@@ -51,6 +62,8 @@ class UrlClassifier private constructor(context: Context) {
         }
 
         /**
+=======
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
          * 인스턴스 해제 (앱 종료 시)
          */
         fun releaseInstance() {
@@ -60,6 +73,7 @@ class UrlClassifier private constructor(context: Context) {
                 Log.d(TAG, "UrlClassifier 인스턴스 해제")
             }
         }
+<<<<<<< HEAD
         
         /**
          * 🆕 URL 정규화 - 프로토콜이 없으면 추가
@@ -75,11 +89,14 @@ class UrlClassifier private constructor(context: Context) {
             // 프로토콜이 없으면 https:// 추가
             return "https://$trimmed"
         }
+=======
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
     }
 
     private val interpreter: Interpreter
 
     // ============================================
+<<<<<<< HEAD
     // StandardScaler 값 (v10 모델 - 실제 피싱 URL 데이터 기반)
     // ============================================
     private val scalerMean = floatArrayOf(
@@ -152,11 +169,63 @@ class UrlClassifier private constructor(context: Context) {
         ".click", ".link", ".download", ".stream", ".racing",
         ".win", ".bid", ".loan", ".work", ".date", ".review",
         ".vip", ".cn", ".cyou", ".cc", ".shop"  // v10 추가
+=======
+    // StandardScaler 값 (v6 모델 - scaler_config.json)
+    // ============================================
+    private val scalerMean = floatArrayOf(
+        36.8404875f,           // urlLength
+        21.852175f,            // domainLength
+        4.4470375f,            // pathLength
+        1.1668625f,            // subdomainCount
+        0.74435f,              // hasHttps
+        0.0001125f,            // hasPort
+        0.07055f,              // paramCount
+        0.032738347f,          // digitRatio
+        0.08162040f,           // specialCharRatio
+        0.00305f,              // hasIpAddress
+        0.0473125f,            // hasSuspiciousKeyword
+        0.0595875f,            // hasSuspiciousTld
+        3.4893980f             // entropy
+    )
+
+    private val scalerScale = floatArrayOf(
+        44.992049f,            // urlLength
+        9.631491f,             // domainLength
+        29.664013f,            // pathLength
+        0.632451f,             // subdomainCount
+        0.436226f,             // hasHttps
+        0.010606f,             // hasPort
+        0.610408f,             // paramCount
+        0.074481f,             // digitRatio
+        0.026087f,             // specialCharRatio
+        0.055143f,             // hasIpAddress
+        0.212306f,             // hasSuspiciousKeyword
+        0.236721f,             // hasSuspiciousTld
+        0.410255f              // entropy
+    )
+
+    // 의심 키워드 목록 (v6 모델과 동일)
+    private val suspiciousKeywords = listOf(
+        "login", "verify", "account", "secure", "update", "confirm",
+        "password", "authenticate", "credentials", "signin", "banking",
+        "paypal", "ebay", "amazon", "apple", "microsoft", "google",
+        "facebook", "netflix", "wallet", "suspend", "unusual", "alert", "urgent"
+    )
+
+    // 의심 TLD 목록 (v6 모델과 동일)
+    private val suspiciousTlds = listOf(
+        ".tk", ".ml", ".ga", ".cf", ".gq", ".xyz", ".top",
+        ".click", ".link", ".download", ".stream", ".racing", ".win", ".bid", ".loan"
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
     )
 
     init {
         interpreter = Interpreter(loadModelFile(context, "phishing_model.tflite"))
+<<<<<<< HEAD
         Log.d(TAG, "TFLite 모델 로드 완료 (v10, 실제 피싱 URL 데이터 + Label Smoothing)")
+=======
+        Log.d(TAG, "TFLite 모델 로드 완료 (v6, 13개 피처, StandardScaler 적용)")
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
     }
 
     private fun loadModelFile(context: Context, modelPath: String): MappedByteBuffer {
@@ -167,6 +236,7 @@ class UrlClassifier private constructor(context: Context) {
         val declaredLength = fileDescriptor.length
         return fileChannel.map(FileChannel.MapMode.READ_ONLY, startOffset, declaredLength)
     }
+<<<<<<< HEAD
     
     /**
      * 🆕 URL에서 hostname 추출 (정규화 포함)
@@ -208,20 +278,28 @@ class UrlClassifier private constructor(context: Context) {
         Log.d(TAG, "수동 hostname 추출: $url → $cleaned")
         return cleaned
     }
+=======
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
 
     /**
      * URL에서 13개 피처 추출 (v6 학습 코드와 100% 동일)
      */
     private fun extractFeatures(url: String): FloatArray {
+<<<<<<< HEAD
         // 🆕 URL 정규화 적용
         val normalizedUrl = normalizeUrl(url)
         
         val uri = try {
             java.net.URI(normalizedUrl)
+=======
+        val uri = try {
+            java.net.URI(url)
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
         } catch (e: Exception) {
             null
         }
 
+<<<<<<< HEAD
         val hostname = extractHostname(url)
         val path = uri?.path ?: ""
         val scheme = (uri?.scheme ?: "https").lowercase()
@@ -229,6 +307,15 @@ class UrlClassifier private constructor(context: Context) {
         val port = uri?.port ?: -1
 
         // 1. urlLength (원본 URL 기준)
+=======
+        val hostname = (uri?.host ?: "").lowercase()
+        val path = uri?.path ?: ""
+        val scheme = (uri?.scheme ?: "").lowercase()
+        val query = uri?.query ?: ""
+        val port = uri?.port ?: -1
+
+        // 1. urlLength
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
         val urlLength = url.length.toFloat()
 
         // 2. domainLength
@@ -265,6 +352,7 @@ class UrlClassifier private constructor(context: Context) {
         val hostWithoutPort = hostname.split(":")[0]
         val hasIpAddress = if (ipPattern.matches(hostWithoutPort)) 1f else 0f
 
+<<<<<<< HEAD
         // 11. hasSuspiciousKeyword (v7 개선: 대형 브랜드 컨텍스트 고려)
         val urlLower = url.lowercase()
         val domainParts = hostname.split(".")
@@ -292,6 +380,14 @@ class UrlClassifier private constructor(context: Context) {
 
         // 12. hasSuspiciousTld (Python 학습 코드와 동일: contains 방식)
         val hasSuspiciousTld = if (suspiciousTlds.any { it in hostname }) 1f else 0f
+=======
+        // 11. hasSuspiciousKeyword
+        val urlLower = url.lowercase()
+        val hasSuspiciousKeyword = if (suspiciousKeywords.any { urlLower.contains(it) }) 1f else 0f
+
+        // 12. hasSuspiciousTld
+        val hasSuspiciousTld = if (suspiciousTlds.any { hostname.contains(it) }) 1f else 0f
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
 
         // 13. entropy
         val entropy = calculateEntropy(hostname)
@@ -302,8 +398,12 @@ class UrlClassifier private constructor(context: Context) {
             hasIpAddress, hasSuspiciousKeyword, hasSuspiciousTld, entropy
         )
 
+<<<<<<< HEAD
         Log.d(TAG, "피처 추출: $url (정규화: $normalizedUrl)")
         Log.d(TAG, "  hostname: $hostname")
+=======
+        Log.d(TAG, "피처 추출: $url")
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
         Log.d(TAG, "  raw: ${features.toList()}")
 
         return features
@@ -344,6 +444,7 @@ class UrlClassifier private constructor(context: Context) {
         Log.d(TAG, "  normalized: ${normalized.toList()}")
         return normalized
     }
+<<<<<<< HEAD
     
     /**
      * 🆕 신뢰 도메인 체크 (개선)
@@ -373,12 +474,15 @@ class UrlClassifier private constructor(context: Context) {
         
         return false
     }
+=======
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
 
     /**
      * 단일 URL 예측
      * @return 피싱 확률 (0.0 ~ 1.0)
      */
     fun predict(url: String): Float {
+<<<<<<< HEAD
         // 🆕 hostname 추출 (정규화 포함)
         val hostname = extractHostname(url)
 
@@ -434,6 +538,26 @@ class UrlClassifier private constructor(context: Context) {
         Log.w(TAG, "╰────────── PREDICT END (${(calibratedScore * 100).toInt()}%) ──────────╯")
 
         return calibratedScore.coerceIn(0f, 1f)
+=======
+        // 1. 피처 추출
+        val rawFeatures = extractFeatures(url)
+
+        // 2. 정규화 적용
+        val normalizedFeatures = normalize(rawFeatures)
+
+        // 3. 모델 추론
+        val inputs = arrayOf(normalizedFeatures)
+        val outputs = Array(1) { FloatArray(1) }
+
+        interpreter.run(inputs, outputs)
+
+        val rawScore = outputs[0][0].coerceIn(0f, 1f)
+        // 점수 반전 (모델이 0=피싱, 1=정상으로 학습됨)
+        val score = 1f - rawScore
+        Log.d(TAG, "  raw: $rawScore, 반전 후: $score")
+
+        return score
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
     }
 
     /**
@@ -442,10 +566,17 @@ class UrlClassifier private constructor(context: Context) {
     fun analyze(url: String): UrlAnalysisResult {
         val score = predict(url)
 
+<<<<<<< HEAD
         // v10 모델 임계값 (실제 피싱 URL 데이터 기반)
         val level = when {
             score < 0.2f -> "SAFE"
             score < 0.4f -> "SUSPICIOUS"
+=======
+        // v6 모델 권장 임계값: 0.5275
+        val level = when {
+            score < 0.3f -> "SAFE"
+            score < 0.7f -> "SUSPICIOUS"
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
             else -> "DANGEROUS"
         }
 
@@ -465,6 +596,7 @@ class UrlClassifier private constructor(context: Context) {
         // 싱글톤이므로 개별 close 호출 무시 (releaseInstance로만 해제)
         Log.w(TAG, "close() 호출됨 - 싱글톤이므로 무시됨. releaseInstance() 사용 권장")
     }
+<<<<<<< HEAD
 
     /**
      * 디버그용: 상세 예측 정보 반환
@@ -561,6 +693,8 @@ data class PredictDebugResult(
         sb.appendLine("  Calibrated Score: ${(calibratedScore * 100).toInt()}%")
         return sb.toString()
     }
+=======
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
 }
 
 /**

@@ -1,14 +1,21 @@
 package com.mop.phishing.ui.screens.settings
 
+<<<<<<< HEAD
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+=======
+import androidx.compose.foundation.layout.*
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+<<<<<<< HEAD
 import androidx.compose.material.icons.filled.Block
+=======
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Cloud
 import androidx.compose.material.icons.filled.Delete
@@ -25,9 +32,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+<<<<<<< HEAD
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+=======
+import androidx.compose.ui.unit.dp
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
 import com.mop.phishing.ui.components.*
 import com.mop.phishing.ui.theme.*
 
@@ -52,8 +63,11 @@ fun SettingsScreen(
     // URL 차단 서비스 상태
     isAccessibilityEnabled: Boolean = false,
     isOverlayEnabled: Boolean = false,
+<<<<<<< HEAD
     // 알림 리스너 서비스 상태
     isNotificationListenerEnabled: Boolean = false,
+=======
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
     onBackClick: () -> Unit,
     onLoginClick: (() -> Unit)? = null,
     onLogoutClick: () -> Unit,
@@ -62,14 +76,18 @@ fun SettingsScreen(
     // URL 차단 서비스 활성화 콜백
     onAccessibilityClick: (() -> Unit)? = null,
     onOverlayPermissionClick: (() -> Unit)? = null,
+<<<<<<< HEAD
     // 알림 리스너 서비스 활성화 콜백
     onNotificationListenerClick: (() -> Unit)? = null,
+=======
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
     onVersionClick: () -> Unit,
     onTermsClick: () -> Unit,
     onPrivacyClick: () -> Unit,
     onOpenSourceClick: () -> Unit,
     onResetOnboardingClick: () -> Unit,
     onClearHistoryClick: (() -> Unit)? = null,
+<<<<<<< HEAD
     // 차단된 URL 목록 (위험도 포함)
     blockedUrlsWithRisk: Map<String, RiskLevel?> = emptyMap(),
     onUnblockUrl: ((String) -> Unit)? = null,
@@ -92,6 +110,14 @@ fun SettingsScreen(
             }
         )
     }
+=======
+    onTestSafeClick: (() -> Unit)? = null,
+    onTestSuspiciousClick: (() -> Unit)? = null,
+    onTestDangerousClick: (() -> Unit)? = null,
+    modifier: Modifier = Modifier
+) {
+    var showClearHistoryDialog by remember { mutableStateOf(false) }
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
     
     // 분석 기록 삭제 확인 다이얼로그
     if (showClearHistoryDialog) {
@@ -164,6 +190,7 @@ fun SettingsScreen(
                 }
             }
             
+<<<<<<< HEAD
             // 필수 권한 설정 (3개 통합)
             SettingsSection(title = "필수 권한 설정", icon = Icons.Default.Shield) {
                 // 전체 상태 표시
@@ -178,6 +205,19 @@ fun SettingsScreen(
                             enabledCount == 0 -> DangerRed.copy(alpha = 0.1f)
                             else -> WarningYellow.copy(alpha = 0.1f)
                         }
+=======
+            // 🆕 URL 차단 서비스 섹션
+            SettingsSection(title = "URL 차단 서비스", icon = Icons.Default.Shield) {
+                // 전체 상태 표시
+                val isFullyEnabled = isAccessibilityEnabled && isOverlayEnabled
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = if (isFullyEnabled) 
+                            SafeGreen.copy(alpha = 0.1f) 
+                        else 
+                            WarningYellow.copy(alpha = 0.1f)
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
                     )
                 ) {
                     Row(
@@ -187,6 +227,7 @@ fun SettingsScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Icon(
+<<<<<<< HEAD
                             imageVector = if (allEnabled) Icons.Default.Security else Icons.Default.Shield,
                             contentDescription = null,
                             tint = when {
@@ -194,11 +235,17 @@ fun SettingsScreen(
                                 enabledCount == 0 -> DangerRed
                                 else -> WarningYellow
                             },
+=======
+                            imageVector = if (isFullyEnabled) Icons.Default.Security else Icons.Default.Shield,
+                            contentDescription = null,
+                            tint = if (isFullyEnabled) SafeGreen else WarningYellow,
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
                             modifier = Modifier.size(24.dp)
                         )
                         Spacer(Modifier.width(12.dp))
                         Column(Modifier.weight(1f)) {
                             Text(
+<<<<<<< HEAD
                                 text = if (allEnabled) "모든 권한 활성화됨" else "권한 설정 필요 ($enabledCount/3)",
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = FontWeight.SemiBold,
@@ -213,12 +260,25 @@ fun SettingsScreen(
                                     "알림 감지 및 URL 차단이 정상 작동합니다"
                                 else
                                     "아래 권한을 모두 활성화해주세요",
+=======
+                                text = if (isFullyEnabled) "차단 서비스 활성화됨" else "차단 서비스 비활성화",
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.SemiBold,
+                                color = if (isFullyEnabled) SafeGreen else WarningYellow
+                            )
+                            Text(
+                                text = if (isFullyEnabled) 
+                                    "브라우저에서 위험 URL 접근 시 자동 차단됩니다" 
+                                else 
+                                    "아래 권한을 활성화해주세요",
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     }
                 }
+<<<<<<< HEAD
 
                 Spacer(Modifier.height(8.dp))
 
@@ -243,15 +303,36 @@ fun SettingsScreen(
                     onClick = { onAccessibilityClick?.invoke() }
                 )
 
+=======
+                
+                Spacer(Modifier.height(8.dp))
+                
+                // 접근성 서비스
+                PermissionSettingItem(
+                    title = "접근성 서비스",
+                    description = "브라우저 URL 감지에 필요",
+                    isEnabled = isAccessibilityEnabled,
+                    onClick = { onAccessibilityClick?.invoke() }
+                )
+                
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
                 HorizontalDivider(
                     modifier = Modifier.padding(vertical = 8.dp),
                     color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
                 )
+<<<<<<< HEAD
 
                 // 3. 오버레이 권한
                 PermissionSettingItem(
                     title = "다른 앱 위에 표시",
                     description = "위험 URL 차단 경고 화면 표시",
+=======
+                
+                // 오버레이 권한
+                PermissionSettingItem(
+                    title = "다른 앱 위에 표시",
+                    description = "차단 경고 화면 표시에 필요",
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
                     isEnabled = isOverlayEnabled,
                     onClick = { onOverlayPermissionClick?.invoke() }
                 )
@@ -317,6 +398,7 @@ fun SettingsScreen(
             // 데이터 관리 섹션 추가
             SettingsSection(title = "데이터 관리", icon = Icons.Default.Delete) {
                 SettingsNavigationItem(
+<<<<<<< HEAD
                     title = "차단된 URL 목록",
                     description = "차단한 URL ${blockedUrlsWithRisk.size}개",
                     onClick = { showBlockedUrlsDialog = true }
@@ -326,6 +408,8 @@ fun SettingsScreen(
                     color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
                 )
                 SettingsNavigationItem(
+=======
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
                     title = "분석 기록 삭제",
                     description = "모든 알림 및 분석 기록 삭제",
                     onClick = { showClearHistoryDialog = true }
@@ -372,6 +456,36 @@ fun SettingsScreen(
                 )
             }
 
+<<<<<<< HEAD
+=======
+            // 개발자 옵션 (테스트)
+            SettingsSection(title = "개발자 옵션", icon = Icons.Default.Build) {
+                SettingsNavigationItem(
+                    title = "안전한 URL 테스트",
+                    description = "정상 URL 분석 테스트",
+                    onClick = { onTestSafeClick?.invoke() }
+                )
+                HorizontalDivider(
+                    modifier = Modifier.padding(vertical = 4.dp),
+                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
+                )
+                SettingsNavigationItem(
+                    title = "의심 URL 테스트",
+                    description = "피싱 의심 URL 분석 테스트",
+                    onClick = { onTestSuspiciousClick?.invoke() }
+                )
+                HorizontalDivider(
+                    modifier = Modifier.padding(vertical = 4.dp),
+                    color = MaterialTheme.colorScheme.outline.copy(alpha = 0.2f)
+                )
+                SettingsNavigationItem(
+                    title = "위험 URL 테스트",
+                    description = "악성 URL 분석 테스트",
+                    onClick = { onTestDangerousClick?.invoke() }
+                )
+            }
+
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
             Spacer(Modifier.height(16.dp))
         }
     }
@@ -430,6 +544,7 @@ fun PermissionSettingItem(
         }
     }
 }
+<<<<<<< HEAD
 
 /**
  * 차단된 URL 목록 다이얼로그
@@ -615,3 +730,5 @@ fun BlockedUrlItem(
         }
     }
 }
+=======
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8

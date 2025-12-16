@@ -153,7 +153,11 @@ exports.analyzeSuspiciousUrl = functions
         return;
       }
 
+<<<<<<< HEAD
       const { url, source = 'app', localRiskScore = null, forceRefresh = false } = req.body;
+=======
+      const { url, source = 'app', localRiskScore = null } = req.body;
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
 
       // URL 검증
       if (!url) {
@@ -175,13 +179,20 @@ exports.analyzeSuspiciousUrl = functions
       }
 
       const validatedLocalScore = validateLocalScore(localRiskScore);
+<<<<<<< HEAD
       logger.info('분석 요청', { url, source, localRiskScore: validatedLocalScore, forceRefresh });
 
       // Step 1: 캐시 확인 (forceRefresh가 true이면 건너뜀)
+=======
+      logger.info('분석 요청', { url, source, localRiskScore: validatedLocalScore });
+
+      // Step 1: 캐시 확인 (로컬 점수 차이가 크면 재분석)
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
       const cache = CacheManager.getInstance();
       const firestoreService = FirestoreService.getInstance();
       const SCORE_DIFF_THRESHOLD = 0.1; // 로컬 점수 차이 임계값
 
+<<<<<<< HEAD
       // 🆕 forceRefresh가 true이면 캐시 무시
       if (forceRefresh) {
         logger.info('🔄 강제 재분석 요청 - 캐시 무시', { url });
@@ -189,6 +200,10 @@ exports.analyzeSuspiciousUrl = functions
 
       // 메모리 캐시 확인 (forceRefresh가 아닌 경우에만)
       const cachedResult = !forceRefresh ? cache.get(url) : null;
+=======
+      // 메모리 캐시 확인
+      const cachedResult = cache.get(url);
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
       if (cachedResult) {
         const cachedLocalScore = cachedResult.breakdown?.localMlScore ?? 0.5;
         const scoreDiff = Math.abs(cachedLocalScore - validatedLocalScore);
@@ -208,6 +223,7 @@ exports.analyzeSuspiciousUrl = functions
         });
       }
 
+<<<<<<< HEAD
       // Firestore 캐시 확인 (forceRefresh가 아닌 경우에만)
       let firestoreCached = null;
       if (!forceRefresh) {
@@ -218,6 +234,16 @@ exports.analyzeSuspiciousUrl = functions
         }
       }
 
+=======
+      // Firestore 캐시 확인
+      let firestoreCached = null;
+      try {
+        firestoreCached = await firestoreService.getAnalysis(url);
+      } catch (dbError) {
+        logger.error('Firestore 조회 실패', dbError, { url });
+      }
+      
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
       if (firestoreCached) {
         const cachedLocalScore = firestoreCached.breakdown?.localMlScore ?? 0.5;
         const scoreDiff = Math.abs(cachedLocalScore - validatedLocalScore);
@@ -249,6 +275,7 @@ exports.analyzeSuspiciousUrl = functions
       }
 
       // Step 3: VirusTotal API
+<<<<<<< HEAD
       // 🔧 단축 URL인 경우 해제된 URL로 VT 호출 (bit.ly → 실제 URL)
       const urlForVT = urlAnalysis.expandedUrl || url;
       const isExpandedUrl = urlForVT !== url;
@@ -260,6 +287,8 @@ exports.analyzeSuspiciousUrl = functions
         });
       }
 
+=======
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
       let virusTotalResult = {
         malicious: 0,
         harmless: 0,
@@ -269,14 +298,23 @@ exports.analyzeSuspiciousUrl = functions
       };
 
       const vtApiKey = getVirusTotalApiKey();
+<<<<<<< HEAD
 
+=======
+      
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
       if (vtApiKey) {
         const vtStartTime = Date.now();
         try {
           const vtService = VirusTotalService.getInstance(vtApiKey);
+<<<<<<< HEAD
           // 🔧 해제된 URL로 VT 조회
           const vtCached = await vtService.getUrlReport(urlForVT).catch(() => null);
 
+=======
+          const vtCached = await vtService.getUrlReport(url).catch(() => null);
+          
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
           if (vtCached) {
             virusTotalResult = {
               malicious: vtCached.malicious || 0,
@@ -285,10 +323,16 @@ exports.analyzeSuspiciousUrl = functions
               suspicious: vtCached.suspicious || 0,
               status: 'cached'
             };
+<<<<<<< HEAD
             logger.info('VirusTotal 캐시 결과', { url: urlForVT, ...virusTotalResult, duration: Date.now() - vtStartTime });
           } else {
             // 🔧 해제된 URL로 VT 분석
             const vtAnalysis = await vtService.analyzeUrl(urlForVT, 5, 3000);
+=======
+            logger.info('VirusTotal 캐시 결과', { ...virusTotalResult, duration: Date.now() - vtStartTime });
+          } else {
+            const vtAnalysis = await vtService.analyzeUrl(url, 5, 3000);
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
             virusTotalResult = {
               malicious: vtAnalysis.malicious || 0,
               harmless: vtAnalysis.harmless || 0,
@@ -296,6 +340,7 @@ exports.analyzeSuspiciousUrl = functions
               suspicious: vtAnalysis.suspicious || 0,
               status: 'analyzed'
             };
+<<<<<<< HEAD
             logger.info('VirusTotal 분석 완료', { url: urlForVT, ...virusTotalResult, duration: Date.now() - vtStartTime });
           }
         } catch (vtError) {
@@ -304,6 +349,15 @@ exports.analyzeSuspiciousUrl = functions
             originalUrl: url,
             duration: Date.now() - vtStartTime,
             apiKeySet: !!vtApiKey
+=======
+            logger.info('VirusTotal 분석 완료', { ...virusTotalResult, duration: Date.now() - vtStartTime });
+          }
+        } catch (vtError) {
+          logger.error('VirusTotal API 오류', vtError, { 
+            url, 
+            duration: Date.now() - vtStartTime,
+            apiKeySet: !!vtApiKey 
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
           });
           virusTotalResult.status = 'error';
           virusTotalResult.errorMessage = vtError.message;
@@ -322,6 +376,7 @@ exports.analyzeSuspiciousUrl = functions
                         finalResult.suspiciousLevel === 'DANGEROUS';
 
       // Step 5: 응답 구성
+<<<<<<< HEAD
       // 🆕 단축 URL이 해제된 경우 expandedUrl 포함
       const isShortUrlExpanded = urlAnalysis.expandedUrl &&
                                   urlAnalysis.expandedUrl !== url &&
@@ -331,6 +386,11 @@ exports.analyzeSuspiciousUrl = functions
         url: url,
         originalUrl: urlAnalysis.originalUrl,
         expandedUrl: isShortUrlExpanded ? urlAnalysis.expandedUrl : null,  // 🆕 단축 URL 해제 결과
+=======
+      const analysisResult = {
+        url: url,
+        originalUrl: urlAnalysis.originalUrl,
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
         normalizedUrl: urlAnalysis.normalizedUrl,
         suspicious: suspicious,
         finalRiskScore: finalResult.finalRiskScore,
@@ -345,6 +405,7 @@ exports.analyzeSuspiciousUrl = functions
         error: urlAnalysis.error || null
       };
 
+<<<<<<< HEAD
       if (isShortUrlExpanded) {
         logger.info('🔗 단축 URL 해제됨', {
           original: url,
@@ -352,6 +413,8 @@ exports.analyzeSuspiciousUrl = functions
         });
       }
 
+=======
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
       // Step 6: 저장
       try {
         await firestoreService.saveAnalysis(url, analysisResult);
@@ -445,7 +508,11 @@ exports.getAIAnalysis = functions
       }
 
       const openaiApiKey = getOpenAIApiKey();
+<<<<<<< HEAD
 
+=======
+      
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
       if (!openaiApiKey) {
         logger.error('OpenAI API 키 미설정', null);
         res.status(503).json({
@@ -455,6 +522,7 @@ exports.getAIAnalysis = functions
         return;
       }
 
+<<<<<<< HEAD
       // 🔧 단축 URL 해제 (AI가 실제 URL을 분석하도록)
       let urlForAI = url;
       try {
@@ -471,6 +539,12 @@ exports.getAIAnalysis = functions
 
       // OpenAI API 호출 (재시도 로직 포함)
       const prompt = generateAIPrompt(urlForAI, analysisResult);
+=======
+      logger.info('AI 보고서 생성 시작', { url, apiKeyMasked: maskApiKey(openaiApiKey) });
+
+      // OpenAI API 호출 (재시도 로직 포함)
+      const prompt = generateAIPrompt(url, analysisResult);
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
       const openaiStartTime = Date.now();
 
       let openaiResponse;

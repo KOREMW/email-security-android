@@ -1,9 +1,17 @@
 {
   "permissions": {
     "allow": [
+<<<<<<< HEAD
       "Bash(./gradlew assembleDebug:*)",
       "Bash(find:*)",
       "Bash(ls:*)"
+=======
+      "mcp__ide__getDiagnostics",
+      "Bash(./gradlew assembleDebug:*)",
+      "Bash(./gradlew.bat:*)",
+      "Bash(tree:*)",
+      "Bash(firebase deploy:*)"
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
     ]
   }
 }

@@ -23,7 +23,11 @@ import androidx.compose.ui.unit.dp
 import com.mop.phishing.ui.theme.*
 
 enum class NotificationSource {
+<<<<<<< HEAD
     KAKAOTALK, SMS, GMAIL, NAVER, OTHER
+=======
+    KAKAOTALK, SMS, GMAIL, OTHER
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
 }
 
 data class NotificationItem(
@@ -86,7 +90,10 @@ fun SourceIcon(source: NotificationSource, modifier: Modifier = Modifier) {
         NotificationSource.KAKAOTALK -> Pair(Color(0xFFFEE500), Icons.Default.Favorite)
         NotificationSource.SMS -> Pair(Color(0xFFFF9800), Icons.Default.Phone)
         NotificationSource.GMAIL -> Pair(Color(0xFFEA4335), Icons.Default.MailOutline)
+<<<<<<< HEAD
         NotificationSource.NAVER -> Pair(Color(0xFF03C75A), Icons.Default.MailOutline)
+=======
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
         NotificationSource.OTHER -> Pair(Primary, Icons.Default.Favorite)
     }
     Box(modifier = modifier.size(40.dp).clip(CircleShape).background(backgroundColor), contentAlignment = Alignment.Center) {
@@ -109,6 +116,9 @@ fun getSourceName(source: NotificationSource): String = when (source) {
     NotificationSource.KAKAOTALK -> "카카오톡"
     NotificationSource.SMS -> "문자메시지"
     NotificationSource.GMAIL -> "Gmail"
+<<<<<<< HEAD
     NotificationSource.NAVER -> "네이버 메일"
+=======
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
     NotificationSource.OTHER -> "알림"
 }

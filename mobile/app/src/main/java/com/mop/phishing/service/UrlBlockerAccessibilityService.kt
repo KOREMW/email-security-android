@@ -27,10 +27,14 @@ class UrlBlockerAccessibilityService : AccessibilityService() {
 
     companion object {
         private const val TAG = "UrlBlockerService"
+<<<<<<< HEAD
 
         // 임시 허용 지속 시간 (30분)
         private const val TEMP_ALLOW_DURATION_MS = 30 * 60 * 1000L
 
+=======
+        
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
         // 지원하는 브라우저 패키지명
         private val BROWSER_PACKAGES = setOf(
             "com.android.chrome",
@@ -47,6 +51,7 @@ class UrlBlockerAccessibilityService : AccessibilityService() {
             "com.UCMobile.intl",                 // UC Browser
             "com.android.browser",               // 기본 브라우저
         )
+<<<<<<< HEAD
 
         // 서비스 상태
         var isRunning = false
@@ -54,6 +59,12 @@ class UrlBlockerAccessibilityService : AccessibilityService() {
 
         // 임시 허용된 URL 목록 (URL -> 허용된 시간)
         private val temporarilyAllowedUrls = mutableMapOf<String, Long>()
+=======
+        
+        // 서비스 상태
+        var isRunning = false
+            private set
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
     }
 
     private var windowManager: WindowManager? = null
@@ -85,6 +96,7 @@ class UrlBlockerAccessibilityService : AccessibilityService() {
         if (event == null) return
 
         val packageName = event.packageName?.toString() ?: return
+<<<<<<< HEAD
         
         // 디버그: 모든 이벤트 로깅
         Log.d(TAG, "이벤트 수신: pkg=$packageName, type=${event.eventType}")
@@ -106,6 +118,17 @@ class UrlBlockerAccessibilityService : AccessibilityService() {
             
             val url = extractUrlFromNode(rootNode)
             Log.d(TAG, "추출된 URL: $url")
+=======
+
+        // 브라우저 앱인지 확인
+        if (packageName !in BROWSER_PACKAGES) return
+
+        // URL 추출 시도
+        try {
+            val rootNode = rootInActiveWindow ?: return
+            val url = extractUrlFromNode(rootNode)
+            // rootNode는 recycle하지 않음 (시스템이 관리)
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
             
             if (!url.isNullOrBlank()) {
                 checkAndBlockUrl(url)
@@ -191,6 +214,7 @@ class UrlBlockerAccessibilityService : AccessibilityService() {
     }
 
     /**
+<<<<<<< HEAD
      * URL이 임시 허용되었는지 확인 (30분 이내)
      */
     private fun isTemporarilyAllowed(url: String): Boolean {
@@ -219,6 +243,8 @@ class UrlBlockerAccessibilityService : AccessibilityService() {
     }
 
     /**
+=======
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
      * URL 차단 확인 및 오버레이 표시
      */
     private fun checkAndBlockUrl(url: String) {
@@ -228,17 +254,24 @@ class UrlBlockerAccessibilityService : AccessibilityService() {
             return
         }
 
+<<<<<<< HEAD
         // 임시 허용된 URL인지 확인 (30분 이내)
         if (isTemporarilyAllowed(url)) {
             return
         }
 
+=======
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
         // 차단 목록 확인
         if (UrlBlockManager.isBlocked(this, url)) {
             Log.d(TAG, "차단된 URL 감지: $url")
             lastBlockedUrl = url
             lastBlockTime = now
+<<<<<<< HEAD
 
+=======
+            
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
             handler.post {
                 showBlockOverlay(url)
             }
@@ -278,8 +311,12 @@ class UrlBlockerAccessibilityService : AccessibilityService() {
             // 위험 감수 버튼
             overlayView?.findViewById<Button>(R.id.btnProceed)?.setOnClickListener {
                 removeOverlay()
+<<<<<<< HEAD
                 // 30분간 임시 허용
                 addToTemporarilyAllowed(url)
+=======
+                // 일시적으로 허용 (이 세션에서만)
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
                 lastBlockedUrl = null
             }
 

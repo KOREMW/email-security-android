@@ -30,6 +30,7 @@ const DEFAULT_FEATURES = {
 };
 
 /**
+<<<<<<< HEAD
  * 알려진 단축 URL 서비스 도메인 목록
  */
 const SHORT_URL_DOMAINS = [
@@ -62,6 +63,9 @@ function isShortUrl(url) {
  * 단축 URL 추적해서 최종 URL 찾기
  * HTTP 리다이렉트 + meta refresh + JavaScript 리다이렉트 지원
  * bit.ly 등 단축 URL 서비스 특별 처리
+=======
+ * 단축 URL 추적해서 최종 URL 찾기
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
  * @param {string} url - 입력 URL
  * @returns {Promise<string>} 최종 URL
  */
@@ -76,6 +80,7 @@ async function expandShortUrl(url) {
     let currentUrl = url;
     let redirectCount = 0;
     const seenUrls = new Set();
+<<<<<<< HEAD
     const isShort = isShortUrl(url);
 
     // 단축 URL인 경우 더 긴 타임아웃 사용
@@ -84,16 +89,23 @@ async function expandShortUrl(url) {
     if (isShort) {
       console.log(`🔗 단축 URL 감지: ${url}`);
     }
+=======
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
 
     while (redirectCount < URL_NORMALIZER.MAX_REDIRECTS) {
       // 순환 리다이렉트 감지
       if (seenUrls.has(currentUrl)) {
+<<<<<<< HEAD
         console.warn('Redirect loop detected');
         break;
+=======
+        throw new Error('Redirect loop detected');
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
       }
       seenUrls.add(currentUrl);
 
       try {
+<<<<<<< HEAD
         // 🆕 단축 URL 서비스는 GET 요청 직접 사용 (HEAD가 차단되는 경우 많음)
         if (isShortUrl(currentUrl)) {
           const getResponse = await axios.get(currentUrl, {
@@ -237,6 +249,55 @@ async function expandShortUrl(url) {
   } catch (error) {
     console.error('Error expanding short URL:', error.message);
     return url;
+=======
+        // HEAD 요청으로 빠르게 리다이렉트 확인
+        const response = await axios.head(currentUrl, {
+          timeout: URL_NORMALIZER.REDIRECT_TIMEOUT,
+          maxRedirects: 0,  // 수동 리다이렉트 처리
+          validateStatus: () => true  // 모든 상태 코드 허용
+        });
+
+        // 리다이렉트 상태 코드 확인
+        if ([301, 302, 303, 307, 308].includes(response.status)) {
+          const location = response.headers.location;
+          if (!location) break;
+          
+          currentUrl = location;
+          redirectCount++;
+        } else {
+          // 리다이렉트 없음 → 최종 URL
+          break;
+        }
+      } catch (error) {
+        // HEAD 실패 → GET으로 재시도
+        if (redirectCount === 0) {
+          try {
+            const response = await axios.get(currentUrl, {
+              timeout: URL_NORMALIZER.REDIRECT_TIMEOUT,
+              maxRedirects: 0,
+              validateStatus: () => true
+            });
+            
+            if (response.config.url !== currentUrl) {
+              currentUrl = response.config.url;
+              redirectCount++;
+            } else {
+              break;
+            }
+          } catch {
+            break;
+          }
+        } else {
+          break;
+        }
+      }
+    }
+
+    return currentUrl;
+  } catch (error) {
+    console.error('Error expanding short URL:', error.message);
+    return url;  // 실패 시 원본 URL 반환
+>>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
   }
 }
 
