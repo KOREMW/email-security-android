@@ -56,7 +56,6 @@ import com.mop.phishing.ui.theme.Primary
 import com.mop.phishing.ui.theme.SafeGreen
 import com.mop.phishing.ui.theme.WarningYellow
 import com.mop.phishing.util.AccessibilityUtils
-import com.mop.phishing.util.TestNotificationHelper
 import com.mop.phishing.util.UrlActionUtils
 import com.mop.phishing.util.UrlBlockManager
 import kotlinx.coroutines.launch
@@ -70,7 +69,6 @@ sealed class Screen(val route: String) {
     object Settings : Screen("settings")
     object UrlInput : Screen("url_input")
     object QrScanner : Screen("qr_scanner")
-    object MlTest : Screen("ml_test")  // ML 모델 테스트 화면
 }
 
 @Composable
@@ -392,7 +390,6 @@ fun AppNavigation(
         }
 
         composable(Screen.Settings.route) {
-            val testScope = rememberCoroutineScope()
             val lifecycleOwner = LocalLifecycleOwner.current
 
             var isAccessibilityEnabled by remember { mutableStateOf(AccessibilityUtils.isAccessibilityServiceEnabled(context)) }
@@ -670,18 +667,7 @@ fun AppNavigation(
                     UrlBlockManager.unblockUrl(context, url)
                     blockedUrls = UrlBlockManager.getBlockedUrls(context)
                     Toast.makeText(context, "차단이 해제되었습니다", Toast.LENGTH_SHORT).show()
-                },
-                onTestSafeClick = { testScope.launch { Toast.makeText(context, "안전한 URL 테스트 중...", Toast.LENGTH_SHORT).show(); val result = TestNotificationHelper.quickTest(context, TestNotificationHelper.TestScenario.SAFE_EMAIL); Toast.makeText(context, "${if (result.isCached) "[캐시]" else "[새분석]"} 점수: ${result.riskScore}% (${result.riskLevel})", Toast.LENGTH_LONG).show() } },
-                onTestSuspiciousClick = { testScope.launch { Toast.makeText(context, "의심 URL 테스트 중...", Toast.LENGTH_SHORT).show(); val result = TestNotificationHelper.quickTest(context, TestNotificationHelper.TestScenario.SUSPICIOUS_SMS); Toast.makeText(context, "${if (result.isCached) "[캐시]" else "[새분석]"} 점수: ${result.riskScore}% (${result.riskLevel})\nVT: 악성${result.vtMalicious}/의심${result.vtSuspicious}", Toast.LENGTH_LONG).show() } },
-                onTestDangerousClick = { testScope.launch { Toast.makeText(context, "위험 URL 테스트 중...", Toast.LENGTH_SHORT).show(); val result = TestNotificationHelper.quickTest(context, TestNotificationHelper.TestScenario.DANGEROUS_KAKAO); Toast.makeText(context, "${if (result.isCached) "[캐시]" else "[새분석]"} 점수: ${result.riskScore}% (${result.riskLevel})\nVT: 악성${result.vtMalicious}/의심${result.vtSuspicious}", Toast.LENGTH_LONG).show() } },
-                onMlTestClick = { navController.navigate(Screen.MlTest.route) }  // ML 테스트 화면으로 이동
-            )
-        }
-        
-        // ML 모델 테스트 화면
-        composable(Screen.MlTest.route) {
-            MlTestScreen(
-                onBackClick = { navController.popBackStack() }
+                }
             )
         }
     }

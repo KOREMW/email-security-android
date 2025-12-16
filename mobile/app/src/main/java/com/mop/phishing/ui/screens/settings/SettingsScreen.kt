@@ -73,10 +73,6 @@ fun SettingsScreen(
     // 차단된 URL 목록 (위험도 포함)
     blockedUrlsWithRisk: Map<String, RiskLevel?> = emptyMap(),
     onUnblockUrl: ((String) -> Unit)? = null,
-    onTestSafeClick: (() -> Unit)? = null,
-    onTestSuspiciousClick: (() -> Unit)? = null,
-    onTestDangerousClick: (() -> Unit)? = null,
-    onMlTestClick: (() -> Unit)? = null,  // ML 모델 배치 테스트
     modifier: Modifier = Modifier
 ) {
     var showClearHistoryDialog by remember { mutableStateOf(false) }
