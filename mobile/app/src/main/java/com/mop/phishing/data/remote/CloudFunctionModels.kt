@@ -13,12 +13,8 @@ data class AnalyzeSuspiciousUrlRequest(
     val url: String,
     val source: String = "manual",  // manual | notification | qr
     @SerializedName("localRiskScore")
-<<<<<<< HEAD
     val localRiskScore: Double? = null,
     val forceRefresh: Boolean = false  // 🆕 캐시 무시하고 강제 재분석
-=======
-    val localRiskScore: Double? = null
->>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
 )
 
 /**
@@ -29,11 +25,8 @@ data class AnalyzeSuspiciousUrlResponse(
     // 기본 URL 정보
     val url: String,
     val originalUrl: String?,
-<<<<<<< HEAD
     @SerializedName("expandedUrl")
     val expandedUrl: String? = null,  // 🆕 단축 URL 해제 결과 (bit.ly → 실제 URL)
-=======
->>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
     val normalizedUrl: String?,
     
     // 분석 결과

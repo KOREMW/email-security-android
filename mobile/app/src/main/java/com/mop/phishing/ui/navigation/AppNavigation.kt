@@ -11,17 +11,12 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-<<<<<<< HEAD
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.ui.window.Dialog
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-=======
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.RoundedCornerShape
->>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -58,10 +53,7 @@ import com.mop.phishing.ui.screens.onboarding.*
 import com.mop.phishing.ui.screens.settings.*
 import com.mop.phishing.ui.theme.DangerRed
 import com.mop.phishing.ui.theme.Primary
-<<<<<<< HEAD
 import com.mop.phishing.ui.theme.SafeGreen
-=======
->>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
 import com.mop.phishing.ui.theme.WarningYellow
 import com.mop.phishing.util.AccessibilityUtils
 import com.mop.phishing.util.TestNotificationHelper
@@ -78,10 +70,7 @@ sealed class Screen(val route: String) {
     object Settings : Screen("settings")
     object UrlInput : Screen("url_input")
     object QrScanner : Screen("qr_scanner")
-<<<<<<< HEAD
     object MlTest : Screen("ml_test")  // ML 모델 테스트 화면
-=======
->>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
 }
 
 @Composable
@@ -144,7 +133,6 @@ fun AppNavigation(
             val lifecycleOwner = LocalLifecycleOwner.current
             
             // 권한 상태 확인
-<<<<<<< HEAD
             var isAccessibilityEnabled by remember {
                 mutableStateOf(AccessibilityUtils.isAccessibilityServiceEnabled(context))
             }
@@ -155,25 +143,13 @@ fun AppNavigation(
                 mutableStateOf(AccessibilityUtils.isNotificationListenerEnabled(context))
             }
 
-=======
-            var isAccessibilityEnabled by remember { 
-                mutableStateOf(AccessibilityUtils.isAccessibilityServiceEnabled(context)) 
-            }
-            var isOverlayEnabled by remember { 
-                mutableStateOf(AccessibilityUtils.canDrawOverlays(context)) 
-            }
-            
->>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
             // 화면 돌아올 때 권한 상태 갱신
             DisposableEffect(lifecycleOwner) {
                 val observer = LifecycleEventObserver { _, event ->
                     if (event == Lifecycle.Event.ON_RESUME) {
                         isAccessibilityEnabled = AccessibilityUtils.isAccessibilityServiceEnabled(context)
                         isOverlayEnabled = AccessibilityUtils.canDrawOverlays(context)
-<<<<<<< HEAD
                         isNotificationListenerEnabled = AccessibilityUtils.isNotificationListenerEnabled(context)
-=======
->>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
                     }
                 }
                 lifecycleOwner.lifecycle.addObserver(observer)
@@ -181,18 +157,11 @@ fun AppNavigation(
                     lifecycleOwner.lifecycle.removeObserver(observer)
                 }
             }
-<<<<<<< HEAD
 
             NotificationListScreenWithFab(
                 notifications = notifications,
                 unanalyzedCount = unanalyzedCount,
                 isNotificationListenerEnabled = isNotificationListenerEnabled,
-=======
-            
-            NotificationListScreenWithFab(
-                notifications = notifications,
-                unanalyzedCount = unanalyzedCount,
->>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
                 isAccessibilityEnabled = isAccessibilityEnabled,
                 isOverlayEnabled = isOverlayEnabled,
                 onNotificationClick = { notification ->
@@ -205,13 +174,10 @@ fun AppNavigation(
                     navController.navigate(Screen.UrlInput.route)
                 },
                 onQrScanClick = { navController.navigate(Screen.QrScanner.route) },
-<<<<<<< HEAD
                 onNotificationListenerClick = {
                     Toast.makeText(context, "알림 접근 설정에서 '피싱 탐지'를 활성화해주세요", Toast.LENGTH_LONG).show()
                     AccessibilityUtils.openNotificationListenerSettings(context)
                 },
-=======
->>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
                 onAccessibilityClick = {
                     Toast.makeText(context, "접근성 설정에서 '피싱 URL 차단 서비스'를 활성화해주세요", Toast.LENGTH_LONG).show()
                     AccessibilityUtils.openAccessibilitySettings(context)
@@ -238,10 +204,7 @@ fun AppNavigation(
                 
                 var isBlocked by remember { mutableStateOf(UrlBlockManager.isBlocked(context, notification.url)) }
                 var showUnblockWarningDialog by remember { mutableStateOf(false) }
-<<<<<<< HEAD
                 var isReanalyzing by remember { mutableStateOf(false) }
-=======
->>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
 
                 LaunchedEffect(notification.id) {
                     analysisViewModel.analyzeNotification(
@@ -250,7 +213,6 @@ fun AppNavigation(
                         source = "notification"
                     )
                 }
-<<<<<<< HEAD
                 
                 // 재분석 완료 시 로딩 상태 해제
                 LaunchedEffect(analysisState) {
@@ -258,8 +220,6 @@ fun AppNavigation(
                         isReanalyzing = false
                     }
                 }
-=======
->>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
 
                 LaunchedEffect(isFromCache) {
                     if (isFromCache) {
@@ -371,7 +331,6 @@ fun AppNavigation(
                             Toast.makeText(context, "URL이 차단되었습니다", Toast.LENGTH_SHORT).show()
                         }
                     },
-<<<<<<< HEAD
                     onReanalyzeClick = {
                         // 전체 재분석: 온디바이스 ML + VirusTotal + AI 분석 (forceRefresh = true)
                         isReanalyzing = true
@@ -385,9 +344,6 @@ fun AppNavigation(
                     },
                     isBlocked = isBlocked,
                     isReanalyzing = isReanalyzing
-=======
-                    isBlocked = isBlocked
->>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
                 )
             } else {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -405,16 +361,12 @@ fun AppNavigation(
         composable(Screen.UrlInput.route) {
             val analysisState by analysisViewModel.analysisState.collectAsState()
             val isLoading by analysisViewModel.isLoading.collectAsState()
-<<<<<<< HEAD
             val currentUrl by analysisViewModel.currentUrl.collectAsState()
-=======
->>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
             UrlInputScreen(
                 analysisState = if (analysisState is AnalysisState.Loading && !isLoading) null else analysisState,
                 isLoading = isLoading,
                 onBackClick = { analysisViewModel.resetAnalysis(); navController.popBackStack() },
                 onAnalyzeClick = { url -> analysisViewModel.analyzeUrl(url, "manual", true) },
-<<<<<<< HEAD
                 // 🆕 재분석: 서버 캐시 무시하고 강제 재분석 (QR 스캔 URL도 지원)
                 onReanalyzeClick = { inputUrl ->
                     val urlToAnalyze = inputUrl.ifBlank { currentUrl }
@@ -422,9 +374,6 @@ fun AppNavigation(
                         analysisViewModel.analyzeUrl(urlToAnalyze, "manual", true, null, forceRefresh = true)
                     }
                 }
-=======
-                onQrScanClick = { navController.navigate(Screen.QrScanner.route) }
->>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
             )
         }
 
@@ -435,13 +384,9 @@ fun AppNavigation(
                     analysisViewModel.resetAnalysis()
                     navController.popBackStack()
                     navController.navigate(Screen.UrlInput.route)
-<<<<<<< HEAD
                     // 🔧 QR 스캔은 항상 forceRefresh=true로 VT API 강제 호출
                     // (서버 캐시에 VT 결과가 없는 경우 방지)
                     analysisViewModel.analyzeUrl(url, "qr", true, null, forceRefresh = true)
-=======
-                    analysisViewModel.analyzeUrl(url, "qr", true)
->>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
                 }
             )
         }
@@ -452,7 +397,6 @@ fun AppNavigation(
 
             var isAccessibilityEnabled by remember { mutableStateOf(AccessibilityUtils.isAccessibilityServiceEnabled(context)) }
             var isOverlayEnabled by remember { mutableStateOf(AccessibilityUtils.canDrawOverlays(context)) }
-<<<<<<< HEAD
             var isNotificationListenerEnabled by remember { mutableStateOf(AccessibilityUtils.isNotificationListenerEnabled(context)) }
 
             // 차단된 URL 목록 (실시간 업데이트)
@@ -462,19 +406,14 @@ fun AppNavigation(
             val blockedUrlsWithRisk: Map<String, RiskLevel?> = blockedUrls.associateWith { url ->
                 notifications.find { it.url == url }?.riskLevel
             }
-=======
->>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
 
             DisposableEffect(lifecycleOwner) {
                 val observer = LifecycleEventObserver { _, event ->
                     if (event == Lifecycle.Event.ON_RESUME) {
                         isAccessibilityEnabled = AccessibilityUtils.isAccessibilityServiceEnabled(context)
                         isOverlayEnabled = AccessibilityUtils.canDrawOverlays(context)
-<<<<<<< HEAD
                         isNotificationListenerEnabled = AccessibilityUtils.isNotificationListenerEnabled(context)
                         blockedUrls = UrlBlockManager.getBlockedUrls(context)
-=======
->>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
                     }
                 }
                 lifecycleOwner.lifecycle.addObserver(observer)
@@ -489,7 +428,6 @@ fun AppNavigation(
                 else -> null
             }
 
-<<<<<<< HEAD
             // 다이얼로그 상태
             var showOpenSourceDialog by remember { mutableStateOf(false) }
             var showTermsDialog by remember { mutableStateOf(false) }
@@ -698,8 +636,6 @@ fun AppNavigation(
                 )
             }
 
-=======
->>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
             SettingsScreen(
                 settingsState = settingsState,
                 isLoggedIn = isLoggedIn,
@@ -707,20 +643,14 @@ fun AppNavigation(
                 lastSyncMessage = lastSyncMessage,
                 isAccessibilityEnabled = isAccessibilityEnabled,
                 isOverlayEnabled = isOverlayEnabled,
-<<<<<<< HEAD
                 isNotificationListenerEnabled = isNotificationListenerEnabled,
-=======
->>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
                 onBackClick = { navController.popBackStack() },
                 onLoginClick = onGoogleSignInClick,
                 onLogoutClick = { if (isLoggedIn) { authViewModel.signOut(); Toast.makeText(context, "로그아웃되었습니다", Toast.LENGTH_SHORT).show() } },
                 onSyncClick = { authViewModel.syncData(); Toast.makeText(context, "동기화 시작...", Toast.LENGTH_SHORT).show() },
                 onAccessibilityClick = { Toast.makeText(context, "접근성 설정에서 '피싱 URL 차단 서비스'를 활성화해주세요", Toast.LENGTH_LONG).show(); AccessibilityUtils.openAccessibilitySettings(context) },
                 onOverlayPermissionClick = { Toast.makeText(context, "다른 앱 위에 표시 권한을 활성화해주세요", Toast.LENGTH_LONG).show(); AccessibilityUtils.openOverlayPermissionSettings(context) },
-<<<<<<< HEAD
                 onNotificationListenerClick = { Toast.makeText(context, "알림 접근 설정에서 '피싱 탐지'를 활성화해주세요", Toast.LENGTH_LONG).show(); AccessibilityUtils.openNotificationListenerSettings(context) },
-=======
->>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
                 onSettingChange = { newState ->
                     if (newState.darkMode != settingsState.darkMode) settingsViewModel.updateDarkMode(newState.darkMode)
                     if (newState.autoAnalysis != settingsState.autoAnalysis) settingsViewModel.updateAutoAnalysis(newState.autoAnalysis)
@@ -730,7 +660,6 @@ fun AppNavigation(
                     if (newState.vibration != settingsState.vibration) settingsViewModel.updateVibration(newState.vibration)
                 },
                 onVersionClick = { Toast.makeText(context, "Email Security v1.0.0\nPowered by ML & Cloud Functions", Toast.LENGTH_LONG).show() },
-<<<<<<< HEAD
                 onTermsClick = { showTermsDialog = true },
                 onPrivacyClick = { showPrivacyDialog = true },
                 onOpenSourceClick = { showOpenSourceDialog = true },
@@ -753,16 +682,6 @@ fun AppNavigation(
         composable(Screen.MlTest.route) {
             MlTestScreen(
                 onBackClick = { navController.popBackStack() }
-=======
-                onTermsClick = { try { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://www.example.com/terms"))) } catch (e: Exception) { Toast.makeText(context, "이용 약관을 열 수 없습니다", Toast.LENGTH_SHORT).show() } },
-                onPrivacyClick = { try { context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://www.example.com/privacy"))) } catch (e: Exception) { Toast.makeText(context, "개인정보 처리방침을 열 수 없습니다", Toast.LENGTH_SHORT).show() } },
-                onOpenSourceClick = { Toast.makeText(context, "사용된 오픈소스:\n• TensorFlow Lite\n• Retrofit\n• Jetpack Compose\n• Room Database", Toast.LENGTH_LONG).show() },
-                onResetOnboardingClick = { context.getSharedPreferences("app_prefs", android.content.Context.MODE_PRIVATE).edit().putBoolean("onboarding_completed", false).apply(); navController.navigate(Screen.Onboarding.route) { popUpTo(0) { inclusive = true } } },
-                onClearHistoryClick = { notificationViewModel.deleteAllNotifications(); Toast.makeText(context, "분석 기록이 삭제되었습니다", Toast.LENGTH_SHORT).show() },
-                onTestSafeClick = { testScope.launch { Toast.makeText(context, "안전한 URL 테스트 중...", Toast.LENGTH_SHORT).show(); val result = TestNotificationHelper.quickTest(context, TestNotificationHelper.TestScenario.SAFE_EMAIL); Toast.makeText(context, "${if (result.isCached) "[캐시]" else "[새분석]"} 점수: ${result.riskScore}% (${result.riskLevel})", Toast.LENGTH_LONG).show() } },
-                onTestSuspiciousClick = { testScope.launch { Toast.makeText(context, "의심 URL 테스트 중...", Toast.LENGTH_SHORT).show(); val result = TestNotificationHelper.quickTest(context, TestNotificationHelper.TestScenario.SUSPICIOUS_SMS); Toast.makeText(context, "${if (result.isCached) "[캐시]" else "[새분석]"} 점수: ${result.riskScore}% (${result.riskLevel})\nVT: 악성${result.vtMalicious}/의심${result.vtSuspicious}", Toast.LENGTH_LONG).show() } },
-                onTestDangerousClick = { testScope.launch { Toast.makeText(context, "위험 URL 테스트 중...", Toast.LENGTH_SHORT).show(); val result = TestNotificationHelper.quickTest(context, TestNotificationHelper.TestScenario.DANGEROUS_KAKAO); Toast.makeText(context, "${if (result.isCached) "[캐시]" else "[새분석]"} 점수: ${result.riskScore}% (${result.riskLevel})\nVT: 악성${result.vtMalicious}/의심${result.vtSuspicious}", Toast.LENGTH_LONG).show() } }
->>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
             )
         }
     }
@@ -775,33 +694,22 @@ fun AppNavigation(
 fun NotificationListScreenWithFab(
     notifications: List<NotificationItem>,
     unanalyzedCount: Int,
-<<<<<<< HEAD
     isNotificationListenerEnabled: Boolean,
-=======
->>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
     isAccessibilityEnabled: Boolean,
     isOverlayEnabled: Boolean,
     onNotificationClick: (NotificationItem) -> Unit,
     onSettingsClick: () -> Unit,
     onUrlInputClick: () -> Unit,
     onQrScanClick: () -> Unit,
-<<<<<<< HEAD
     onNotificationListenerClick: () -> Unit,
-=======
->>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
     onAccessibilityClick: () -> Unit,
     onOverlayPermissionClick: () -> Unit
 ) {
     var showFabMenu by remember { mutableStateOf(false) }
     // 배너 닫기 상태 (세션 동안만 유지)
     var isBannerDismissed by remember { mutableStateOf(false) }
-<<<<<<< HEAD
 
     val needsPermissions = !isNotificationListenerEnabled || !isAccessibilityEnabled || !isOverlayEnabled
-=======
-    
-    val needsPermissions = !isAccessibilityEnabled || !isOverlayEnabled
->>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
     
     Scaffold(
         floatingActionButton = {
@@ -822,7 +730,6 @@ fun NotificationListScreenWithFab(
         ) {
             item { NotificationListTopBar(onSettingsClick) }
             
-<<<<<<< HEAD
             // 🆕 권한 안내 배너 (3개 권한 통합)
             if (needsPermissions && !isBannerDismissed) {
                 item {
@@ -831,14 +738,6 @@ fun NotificationListScreenWithFab(
                         isAccessibilityEnabled = isAccessibilityEnabled,
                         isOverlayEnabled = isOverlayEnabled,
                         onNotificationListenerClick = onNotificationListenerClick,
-=======
-            // 🆕 권한 안내 배너
-            if (needsPermissions && !isBannerDismissed) {
-                item {
-                    PermissionSetupBanner(
-                        isAccessibilityEnabled = isAccessibilityEnabled,
-                        isOverlayEnabled = isOverlayEnabled,
->>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
                         onAccessibilityClick = onAccessibilityClick,
                         onOverlayClick = onOverlayPermissionClick,
                         onDismiss = { isBannerDismissed = true }
@@ -877,7 +776,6 @@ fun NotificationListScreenWithFab(
 }
 
 /**
-<<<<<<< HEAD
  * 🆕 권한 설정 안내 배너 (3개 권한 통합)
  */
 @Composable
@@ -886,19 +784,10 @@ fun PermissionSetupBanner(
     isAccessibilityEnabled: Boolean,
     isOverlayEnabled: Boolean,
     onNotificationListenerClick: () -> Unit,
-=======
- * 🆕 권한 설정 안내 배너
- */
-@Composable
-fun PermissionSetupBanner(
-    isAccessibilityEnabled: Boolean,
-    isOverlayEnabled: Boolean,
->>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
     onAccessibilityClick: () -> Unit,
     onOverlayClick: () -> Unit,
     onDismiss: () -> Unit
 ) {
-<<<<<<< HEAD
     val enabledCount = listOf(isNotificationListenerEnabled, isAccessibilityEnabled, isOverlayEnabled).count { it }
     val allEnabled = enabledCount == 3
 
@@ -911,11 +800,6 @@ fun PermissionSetupBanner(
                 else -> WarningYellow.copy(alpha = 0.15f)
             }
         ),
-=======
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = WarningYellow.copy(alpha = 0.15f)),
->>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
         shape = RoundedCornerShape(12.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -928,24 +812,16 @@ fun PermissionSetupBanner(
                     Icon(
                         imageVector = Icons.Default.Shield,
                         contentDescription = null,
-<<<<<<< HEAD
                         tint = when {
                             allEnabled -> SafeGreen
                             enabledCount == 0 -> DangerRed
                             else -> WarningYellow
                         },
-=======
-                        tint = WarningYellow,
->>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
                         modifier = Modifier.size(24.dp)
                     )
                     Spacer(Modifier.width(8.dp))
                     Text(
-<<<<<<< HEAD
                         text = "필수 권한 설정 ($enabledCount/3)",
-=======
-                        text = "🛡️ URL 차단 기능 설정",
->>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface
@@ -955,7 +831,6 @@ fun PermissionSetupBanner(
                     Icon(Icons.Default.Close, "닫기", tint = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
-<<<<<<< HEAD
 
             Spacer(Modifier.height(8.dp))
 
@@ -997,45 +872,11 @@ fun PermissionSetupBanner(
 
             // 모두 활성화되면 완료 메시지
             if (allEnabled) {
-=======
-            
-            Spacer(Modifier.height(8.dp))
-            
-            Text(
-                text = "위험한 URL을 브라우저에서 자동으로 차단하려면 아래 권한을 활성화해주세요.",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            
-            Spacer(Modifier.height(12.dp))
-            
-            // 접근성 서비스 버튼
-            PermissionButton(
-                title = "1. 접근성 서비스",
-                description = "브라우저 URL 감지",
-                isEnabled = isAccessibilityEnabled,
-                onClick = onAccessibilityClick
-            )
-            
-            Spacer(Modifier.height(8.dp))
-            
-            // 오버레이 권한 버튼
-            PermissionButton(
-                title = "2. 다른 앱 위에 표시",
-                description = "차단 경고 화면 표시",
-                isEnabled = isOverlayEnabled,
-                onClick = onOverlayClick
-            )
-            
-            // 모두 활성화되면 완료 메시지
-            if (isAccessibilityEnabled && isOverlayEnabled) {
->>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
                 Spacer(Modifier.height(12.dp))
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(8.dp))
-<<<<<<< HEAD
                         .background(SafeGreen.copy(alpha = 0.1f))
                         .padding(12.dp),
                     verticalAlignment = Alignment.CenterVertically
@@ -1043,15 +884,6 @@ fun PermissionSetupBanner(
                     Icon(Icons.Default.CheckCircle, null, tint = SafeGreen, modifier = Modifier.size(20.dp))
                     Spacer(Modifier.width(8.dp))
                     Text("모든 권한이 활성화되었습니다!", style = MaterialTheme.typography.bodyMedium, color = SafeGreen, fontWeight = FontWeight.SemiBold)
-=======
-                        .background(Primary.copy(alpha = 0.1f))
-                        .padding(12.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(Icons.Default.CheckCircle, null, tint = Primary, modifier = Modifier.size(20.dp))
-                    Spacer(Modifier.width(8.dp))
-                    Text("모든 권한이 활성화되었습니다!", style = MaterialTheme.typography.bodyMedium, color = Primary, fontWeight = FontWeight.SemiBold)
->>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
                 }
             }
         }

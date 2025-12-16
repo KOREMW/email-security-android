@@ -159,7 +159,6 @@ class MainActivityCompose : ComponentActivity() {
 
     /**
      * 알림 리스너 권한 확인 및 요청
-<<<<<<< HEAD
      * 온보딩 완료 후에만 권한 요청을 표시하고, 사용자에게 안내 후 설정으로 이동
      */
     private fun ensureNotificationListenerPermission() {
@@ -209,14 +208,4 @@ class MainActivityCompose : ComponentActivity() {
             .setNegativeButton("나중에", null)
             .show()
     }
-=======
-     */
-    private fun ensureNotificationListenerPermission() {
-        val enabledListeners = NotificationManagerCompat.getEnabledListenerPackages(this)
-        if (!enabledListeners.contains(packageName)) {
-            val intent = Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS")
-            startActivity(intent)
-        }
-    }
->>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
 }

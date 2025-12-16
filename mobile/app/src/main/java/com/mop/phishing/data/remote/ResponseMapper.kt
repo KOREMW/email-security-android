@@ -1,9 +1,6 @@
 package com.mop.phishing.data.remote
 
-<<<<<<< HEAD
 import android.util.Log
-=======
->>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
 import com.mop.phishing.ui.components.RiskLevel
 import com.mop.phishing.ui.screens.detail.AnalysisDetails
 import com.mop.phishing.ui.screens.detail.AnalysisResult
@@ -14,11 +11,8 @@ import com.mop.phishing.ui.screens.detail.AnalysisResult
  */
 object ResponseMapper {
 
-<<<<<<< HEAD
     private const val TAG = "ResponseMapper"
 
-=======
->>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
     /**
      * 백엔드의 suspiciousLevel → UI의 RiskLevel 변환
      * 
@@ -70,7 +64,6 @@ object ResponseMapper {
     }
 
     /**
-<<<<<<< HEAD
      * ML 0.4 + VT 0.6 가중치로 실제 점수 계산 (v2 수정)
      *
      * 공식: finalScore = (ML점수 * 0.4) + (VT점수 * 0.6)
@@ -170,29 +163,11 @@ object ResponseMapper {
             recommendation = getRecommendation(adjustedLevel, aiResponse?.recommendations),
             canAccess = canAccess(adjustedLevel),
             details = mapToAnalysisDetails(response, aiResponse, adjustedScore, actualLocalMlScore)
-=======
-     * API 응답 → UI AnalysisResult 변환
-     */
-    fun mapToAnalysisResult(
-        response: AnalyzeSuspiciousUrlResponse,
-        aiResponse: GetAIAnalysisResponse? = null
-    ): AnalysisResult {
-        val riskLevel = mapSuspiciousLevelToRiskLevel(response.suspiciousLevel)
-        val riskScore = mapScoreToPercent(response.finalRiskScore)
-        
-        return AnalysisResult(
-            riskLevel = riskLevel,
-            riskScore = riskScore,
-            recommendation = getRecommendation(riskLevel, aiResponse?.recommendations),
-            canAccess = canAccess(riskLevel),
-            details = mapToAnalysisDetails(response, aiResponse)
->>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
         )
     }
 
     /**
      * API 응답 → UI AnalysisDetails 변환
-<<<<<<< HEAD
      * @param actualLocalMlScore 실제 로컬 ML 점수 (null이면 백엔드 응답값 사용)
      */
     fun mapToAnalysisDetails(
@@ -223,28 +198,6 @@ object ResponseMapper {
             finalScore = adjustedFinalScore ?: mapScoreToPercent(response.finalRiskScore),
             aiExplanation = buildAiExplanation(aiResponse),
             expandedUrl = response.expandedUrl  // 🆕 단축 URL 해제 결과
-=======
-     */
-    fun mapToAnalysisDetails(
-        response: AnalyzeSuspiciousUrlResponse,
-        aiResponse: GetAIAnalysisResponse? = null
-    ): AnalysisDetails {
-        // VirusTotal 전체 엔진 수 계산
-        val vtTotal = response.breakdown?.virusTotalStats?.total
-            ?: ((response.virusTotal?.malicious ?: 0) + 
-                (response.virusTotal?.harmless ?: 0) + 
-                (response.virusTotal?.undetected ?: 0) +
-                (response.virusTotal?.suspicious ?: 0))
-        
-        return AnalysisDetails(
-            localMlScore = response.breakdown?.localMlScore?.toFloat() ?: 0f,
-            virusTotalMalicious = response.virusTotal?.malicious ?: 0,
-            virusTotalSuspicious = response.virusTotal?.suspicious ?: 0,
-            virusTotalTotal = vtTotal,
-            redirectCount = 0,  // 백엔드에서 redirect 정보 없음
-            finalScore = mapScoreToPercent(response.finalRiskScore),  // 최종 점수 추가
-            aiExplanation = buildAiExplanation(aiResponse)
->>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
         )
     }
 

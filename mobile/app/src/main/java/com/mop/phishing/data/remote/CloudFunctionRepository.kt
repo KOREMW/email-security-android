@@ -66,23 +66,15 @@ object CloudFunctionRepository {
 
     /**
      * URL 악성 여부 분석
-<<<<<<< HEAD
      *
      * @param url 분석할 URL
      * @param source 요청 출처 (manual, notification, qr)
      * @param localRiskScore 로컬 ML 모델의 예측 점수 (0.0~1.0)
      * @param forceRefresh 캐시 무시하고 강제 재분석 (기본 false)
-=======
-     * 
-     * @param url 분석할 URL
-     * @param source 요청 출처 (manual, notification, qr)
-     * @param localRiskScore 로컬 ML 모델의 예측 점수 (0.0~1.0)
->>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
      */
     suspend fun analyzeSuspiciousUrl(
         url: String,
         source: String = "manual",
-<<<<<<< HEAD
         localRiskScore: Double? = null,
         forceRefresh: Boolean = false
     ): AnalyzeSuspiciousUrlResponse {
@@ -95,18 +87,6 @@ object CloudFunctionRepository {
             forceRefresh = forceRefresh
         )
 
-=======
-        localRiskScore: Double? = null
-    ): AnalyzeSuspiciousUrlResponse {
-        Log.d(TAG, "analyzeSuspiciousUrl 호출: url=$url, source=$source, localScore=$localRiskScore")
-        
-        val request = AnalyzeSuspiciousUrlRequest(
-            url = url,
-            source = source,
-            localRiskScore = localRiskScore
-        )
-        
->>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
         return api.analyzeSuspiciousUrl(request)
     }
 

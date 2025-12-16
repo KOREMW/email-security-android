@@ -11,13 +11,9 @@ import androidx.compose.material.icons.filled.Block
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Info
-<<<<<<< HEAD
 import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material.icons.filled.Refresh
-=======
-import androidx.compose.material.icons.filled.LockOpen
->>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Share
@@ -54,19 +50,12 @@ data class AnalysisDetails(
     val localMlScore: Float = 0f,
     val virusTotalMalicious: Int = 0,
     val virusTotalSuspicious: Int = 0,
-<<<<<<< HEAD
     val virusTotalHarmless: Int = 0,   // 🆕 정상 탐지 개수
     val virusTotalTotal: Int = 0,
     val redirectCount: Int = 0,
     val finalScore: Int = 0,
     val aiExplanation: String? = null,
     val expandedUrl: String? = null    // 🆕 단축 URL 해제 결과
-=======
-    val virusTotalTotal: Int = 0,
-    val redirectCount: Int = 0,
-    val finalScore: Int = 0,
-    val aiExplanation: String? = null
->>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
 )
 
 /**
@@ -87,13 +76,9 @@ fun AnalysisDetailScreen(
     onBackClick: () -> Unit,
     onShareClick: () -> Unit,
     onBlockClick: () -> Unit,
-<<<<<<< HEAD
     onReanalyzeClick: () -> Unit = {},
     isBlocked: Boolean = false,
     isReanalyzing: Boolean = false,
-=======
-    isBlocked: Boolean = false,
->>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
     modifier: Modifier = Modifier
 ) {
     Scaffold(
@@ -116,13 +101,9 @@ fun AnalysisDetailScreen(
                         result = analysisState.result,
                         onShareClick = onShareClick,
                         onBlockClick = onBlockClick,
-<<<<<<< HEAD
                         onReanalyzeClick = onReanalyzeClick,
                         isBlocked = isBlocked,
                         isReanalyzing = isReanalyzing,
-=======
-                        isBlocked = isBlocked,
->>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
                         modifier = Modifier.padding(horizontal = 16.dp)
                     )
                 }
@@ -206,13 +187,9 @@ fun AnalysisResultContent(
     result: AnalysisResult,
     onShareClick: () -> Unit,
     onBlockClick: () -> Unit,
-<<<<<<< HEAD
     onReanalyzeClick: () -> Unit = {},
     isBlocked: Boolean = false,
     isReanalyzing: Boolean = false,
-=======
-    isBlocked: Boolean = false,
->>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
     modifier: Modifier = Modifier
 ) {
     Column(modifier) {
@@ -221,15 +198,11 @@ fun AnalysisResultContent(
         RecommendationCard(result.recommendation, result.riskLevel)
         Spacer(Modifier.height(16.dp))
         result.details?.let {
-<<<<<<< HEAD
             AnalysisDetailsCard(
                 details = it,
                 onReanalyzeClick = onReanalyzeClick,
                 isReanalyzing = isReanalyzing
             )
-=======
-            AnalysisDetailsCard(it)
->>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
             Spacer(Modifier.height(16.dp))
         }
         Row(
@@ -461,23 +434,18 @@ fun RecommendationCard(recommendation: String, riskLevel: RiskLevel, modifier: M
 }
 
 @Composable
-<<<<<<< HEAD
 fun AnalysisDetailsCard(
     details: AnalysisDetails,
     onReanalyzeClick: () -> Unit = {},
     isReanalyzing: Boolean = false,
     modifier: Modifier = Modifier
 ) {
-=======
-fun AnalysisDetailsCard(details: AnalysisDetails, modifier: Modifier = Modifier) {
->>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
     Card(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(MaterialTheme.colorScheme.surface)
     ) {
         Column(Modifier.padding(20.dp)) {
-<<<<<<< HEAD
             // 헤더: 제목 + 전체 재분석 버튼
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -569,15 +537,6 @@ fun AnalysisDetailsCard(details: AnalysisDetails, modifier: Modifier = Modifier)
                 Spacer(Modifier.height(12.dp))
             }
 
-=======
-            Text(
-                text = "상세 분석 결과",
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            Spacer(Modifier.height(16.dp))
-
->>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
             ScoreDetailItem(
                 icon = Icons.Default.Settings,
                 label = "온디바이스 ML 분석",
@@ -776,15 +735,9 @@ fun VirusTotalDetailItem(
         Spacer(Modifier.height(4.dp))
         Text(
             text = if (hasResults) "총 ${total}개 엔진에서 검사됨" 
-<<<<<<< HEAD
                    else "VirusTotal API 결과 없음 - 상단의 '전체 재분석' 버튼을 눌러보세요",
             style = MaterialTheme.typography.bodySmall,
             color = if (hasResults) MaterialTheme.colorScheme.onSurfaceVariant else WarningYellow
-=======
-                   else "VirusTotal API 결과 없음 (API 제한 또는 미등록 URL)",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
->>>>>>> 0b337cd2293a0ad0b734fa9b838002e71ecac5e8
         )
     }
 }

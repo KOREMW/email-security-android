@@ -1,0 +1,41 @@
+================================================================================
+Git Merge Conflict Resolution Summary
+================================================================================
+Date: 2025-12-17
+Action: Removed all Git merge conflict markers, keeping HEAD version only
+
+Files Resolved (11 files):
+--------------------------------------------------------------------------------
+1. mobile/app/src/main/java/com/mop/phishing/MailNotificationListener.kt
+2. mobile/app/src/main/java/com/mop/phishing/UrlAnalysisViewModel.kt
+3. mobile/app/src/main/java/com/mop/phishing/data/remote/CloudFunctionModels.kt
+4. mobile/app/src/main/java/com/mop/phishing/ui/components/AnalysisProgress.kt
+5. mobile/app/src/main/java/com/mop/phishing/ui/components/NotificationCard.kt
+6. mobile/app/src/main/java/com/mop/phishing/ui/navigation/AppNavigation.kt
+7. mobile/app/src/main/java/com/mop/phishing/ui/screens/detail/AnalysisDetailScreen.kt
+8. mobile/app/src/main/java/com/mop/phishing/ui/screens/main/UrlInputScreen.kt
+9. mobile/app/src/main/java/com/mop/phishing/ui/screens/settings/SettingsScreen.kt
+10. mobile/app/src/main/java/com/mop/phishing/util/TestNotificationHelper.kt
+11. mobile/app/src/main/java/com/mop/phishing/util/UrlActionUtils.kt
+
+Conflict Pattern Removed:
+--------------------------------------------------------------------------------
+<<<<<<< HEAD
+[KEPT: Current version code]
+=======
+[DELETED: Remote version code from commit 0b337cd...]
+>>>>>>> 0b337cd...
+
+Verification:
+--------------------------------------------------------------------------------
+✓ All conflict markers (<<<<<<< HEAD) removed
+✓ All separator markers (=======) for conflicts removed  
+✓ All end markers (>>>>>>> 0b337cd...) removed
+✓ Files compile-ready (syntax preserved)
+✓ HEAD version retained in all conflicts
+
+Status:
+--------------------------------------------------------------------------------
+All 11 files successfully resolved. Ready for commit.
+
+================================================================================
