@@ -1,0 +1,11 @@
+{
+  "mean": [36.5, 2.5, 7.333333, 0.166667, 0.5],
+  "scale": [15.05656, 3.507136, 2.250926, 0.408248, 0.547723],
+  "feature_names": [
+    "length",
+    "num_digits",
+    "num_special",
+    "has_ip",
+    "has_suspicious_word"
+  ]
+}

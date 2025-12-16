@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">피싱 탐지</string>
+    
+    <!-- 접근성 서비스 -->
+    <string name="accessibility_service_description">브라우저에서 위험한 URL 접근을 감지하고 차단합니다. 피싱 사이트나 악성 URL로부터 사용자를 보호합니다.</string>
+    <string name="accessibility_service_label">피싱 URL 차단 서비스</string>
+    
+    <!-- 차단 오버레이 -->
+    <string name="blocked_title">⚠️ 위험한 사이트 차단됨</string>
+    <string name="blocked_description">이 사이트는 피싱 또는 악성 사이트로 탐지되어 차단되었습니다.</string>
+    <string name="blocked_domain_label">차단된 도메인</string>
+    <string name="blocked_url_label">전체 URL</string>
+    <string name="btn_go_back">🔙 뒤로가기</string>
+    <string name="btn_proceed">위험 감수</string>
+    
+    <!-- 경고 메시지 -->
+    <string name="warning_title">🚨 주의사항</string>
+    <string name="warning_items">• 개인정보를 입력하지 마세요\n• 파일을 다운로드하지 마세요\n• 금융 정보를 입력하지 마세요</string>
+</resources>
